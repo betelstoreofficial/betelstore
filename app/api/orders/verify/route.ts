@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createHmac } from 'crypto'
 import { createClient } from '@/lib/supabase/server'
+import { sendPaymentSuccessToUser } from '@/lib/email'
 
 interface VerifyBody {
   orderId: string
@@ -43,6 +44,26 @@ export async function POST(request: Request) {
       if (error) {
         console.error('Error updating order:', error)
         return NextResponse.json({ error: 'Failed to update order' }, { status: 500 })
+      }
+
+      // Send payment success email to user (non-blocking)
+      const { data: order } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('id', orderId)
+        .single()
+
+      if (order) {
+        sendPaymentSuccessToUser({
+          orderId: order.id,
+          orderNumber: order.order_number,
+          items: order.items as { product_name: string; quantity: number; price_per_kg: number; is_bulk: boolean }[],
+          subtotal: order.subtotal,
+          discount: order.discount,
+          total: order.total,
+          userEmail: user.email!,
+          userName: user.user_metadata?.full_name || user.user_metadata?.name,
+        }).catch(err => console.error('Failed to send payment success email:', err))
       }
 
       return NextResponse.json({ verified: true })

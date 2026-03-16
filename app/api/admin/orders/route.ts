@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin } from '@/lib/admin-api'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { sendOrderStatusUpdateToUser } from '@/lib/email'
 
 export async function GET(request: NextRequest) {
   const auth = await verifyAdmin()
@@ -64,6 +65,24 @@ export async function PATCH(request: NextRequest) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  // Send status update email to user (non-blocking)
+  if (data) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('email, full_name')
+      .eq('id', data.user_id)
+      .single()
+
+    if (profile?.email) {
+      sendOrderStatusUpdateToUser(
+        profile.email,
+        profile.full_name,
+        data.order_number,
+        body.status
+      ).catch(err => console.error('Failed to send status update email:', err))
+    }
   }
 
   return NextResponse.json(data)
