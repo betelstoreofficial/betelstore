@@ -27,13 +27,11 @@ export function DailyPriceTable() {
       .finally(() => setLoading(false))
   }, [])
 
-  const dateLabel = rates.length > 0 && rates[0].updated_at
-    ? new Date(rates[0].updated_at).toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      })
-    : "—"
+  const dateLabel = new Date().toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  })
 
   return (
     <section className="animate-in fade-in slide-in-from-bottom-4 rounded-xl border border-border bg-card p-4 duration-400 md:p-6">
