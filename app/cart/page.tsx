@@ -13,7 +13,7 @@ import { createOrder, verifyPayment } from "@/lib/db"
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, clearCart, subtotal, discount, total } = useCart()
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [placing, setPlacing] = useState(false)
 
@@ -32,6 +32,10 @@ export default function CartPage() {
   }
 
   async function handlePlaceOrder() {
+    if (authLoading) {
+      toast.info("Please wait, checking authentication...")
+      return
+    }
     if (!user) {
       toast.info("Please sign in to place your order")
       router.push("/auth/login?redirectTo=/cart")
