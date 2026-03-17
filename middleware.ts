@@ -42,8 +42,8 @@ export async function middleware(request: NextRequest) {
       loginUrl.searchParams.set('redirectTo', request.nextUrl.pathname)
       return NextResponse.redirect(loginUrl)
     }
-    const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase()
-    if (user.email?.toLowerCase() !== adminEmail) {
+    const adminEmails = process.env.ADMIN_EMAIL?.toLowerCase().split(',').map(e => e.trim()) ?? []
+    if (!user.email || !adminEmails.includes(user.email.toLowerCase())) {
       return NextResponse.redirect(new URL('/', request.url))
     }
     return response
