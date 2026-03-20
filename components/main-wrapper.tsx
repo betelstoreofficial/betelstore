@@ -8,7 +8,7 @@ export function MainWrapper({ children }: { children: React.ReactNode }) {
   const isAdmin = pathname.startsWith("/admin")
 
   return (
-    <main className={cn("min-h-screen", !isAdmin && "pb-24 pt-16 md:pb-8")}>
+    <main className={cn("min-h-screen", !isAdmin && "pb-24 pt-14 md:pb-8 md:pt-16")}>
       {children}
     </main>
   )

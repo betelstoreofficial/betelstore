@@ -21,6 +21,42 @@ export function TopNav() {
   const { user, loading } = useAuth()
 
   return (
+    <>
+    {/* Mobile Header */}
+    <header className="fixed inset-x-0 top-0 z-50 flex h-14 items-center justify-between border-b border-border bg-background px-4 md:hidden">
+      <Link href="/" className="flex items-center gap-2">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+          <Leaf className="h-4 w-4 text-primary-foreground" />
+        </div>
+        <span className="font-[family-name:var(--font-heading)] text-base font-bold text-foreground">
+          The Betel Store
+        </span>
+      </Link>
+      <div className="flex items-center gap-3">
+        {loading ? (
+          <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
+        ) : user ? (
+          <Link href="/account" className="block">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={user.user_metadata?.avatar_url} alt={user.user_metadata?.full_name || "User"} />
+              <AvatarFallback className="bg-primary/10 text-xs text-primary">
+                {(user.user_metadata?.full_name || user.email || "U").charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </Link>
+        ) : (
+          <Link
+            href="/auth/login"
+            className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground"
+          >
+            <LogIn className="h-3.5 w-3.5" />
+            Sign In
+          </Link>
+        )}
+      </div>
+    </header>
+
+    {/* Desktop Header */}
     <header className="fixed inset-x-0 top-0 z-50 hidden h-16 border-b border-border bg-background md:block">
       <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2">
@@ -28,7 +64,7 @@ export function TopNav() {
             <Leaf className="h-4 w-4 text-primary-foreground" />
           </div>
           <span className="font-[family-name:var(--font-heading)] text-lg font-bold text-foreground">
-            Betel Wholesale
+            The Betel Store
           </span>
         </Link>
 
@@ -95,5 +131,6 @@ export function TopNav() {
         </nav>
       </div>
     </header>
+    </>
   )
 }
