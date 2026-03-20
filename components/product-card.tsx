@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react"
 import { Plus, Minus, ShoppingCart, Leaf } from "lucide-react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useCart } from "@/lib/cart-context"
@@ -75,8 +76,18 @@ export function ProductCard({ product, index }: ProductCardProps) {
         </div>
       )}
 
-      <div className="flex h-36 items-center justify-center bg-gradient-to-br from-primary/15 via-accent/40 to-emerald-200/30">
-        <Leaf className="h-16 w-16 text-primary/40 transition-transform duration-300 group-hover:scale-110 group-hover:text-primary/60" />
+      <div className="relative flex h-36 items-center justify-center overflow-hidden bg-gradient-to-br from-primary/15 via-accent/40 to-emerald-200/30">
+        {product.image_url ? (
+          <Image
+            src={product.image_url}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            sizes="(max-width: 768px) 50vw, 33vw"
+          />
+        ) : (
+          <Leaf className="h-16 w-16 text-primary/40 transition-transform duration-300 group-hover:scale-110 group-hover:text-primary/60" />
+        )}
       </div>
 
       <div className="flex flex-1 flex-col gap-3 p-4">

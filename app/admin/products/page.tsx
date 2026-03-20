@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
-import { Plus, Pencil, Trash2 } from "lucide-react"
+import { useEffect, useState, useCallback, useRef } from "react"
+import { Plus, Pencil, Trash2, Upload, X, ImageIcon } from "lucide-react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -42,6 +43,7 @@ import {
 } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
+import { createClient } from "@/lib/supabase/client"
 
 interface Product {
   id: string
@@ -55,6 +57,7 @@ interface Product {
   available: boolean
   description: string
   tag?: string | null
+  image_url?: string | null
 }
 
 const emptyProduct: Omit<Product, "id"> = {
@@ -68,6 +71,7 @@ const emptyProduct: Omit<Product, "id"> = {
   available: true,
   description: "",
   tag: null,
+  image_url: null,
 }
 
 const grades = ["Premium A+", "Premium A", "Grade A", "Grade B+", "Grade B"]
@@ -81,6 +85,9 @@ export default function AdminProductsPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [form, setForm] = useState(emptyProduct)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const fetchProducts = useCallback(() => {
     setLoading(true)
@@ -96,6 +103,7 @@ export default function AdminProductsPage() {
   function openCreate() {
     setEditingProduct(null)
     setForm(emptyProduct)
+    setImagePreview(null)
     setDialogOpen(true)
   }
 
@@ -112,8 +120,57 @@ export default function AdminProductsPage() {
       available: product.available,
       description: product.description,
       tag: product.tag ?? null,
+      image_url: product.image_url ?? null,
     })
+    setImagePreview(product.image_url ?? null)
     setDialogOpen(true)
+  }
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file")
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be less than 5MB")
+      return
+    }
+
+    setUploading(true)
+    try {
+      const supabase = createClient()
+      const fileExt = file.name.split(".").pop()
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`
+
+      const { error } = await supabase.storage
+        .from("product-images")
+        .upload(fileName, file, { cacheControl: "3600", upsert: false })
+
+      if (error) throw error
+
+      const { data: urlData } = supabase.storage
+        .from("product-images")
+        .getPublicUrl(fileName)
+
+      setForm({ ...form, image_url: urlData.publicUrl })
+      setImagePreview(urlData.publicUrl)
+      toast.success("Image uploaded")
+    } catch (err) {
+      console.error("Upload error:", err)
+      toast.error("Failed to upload image")
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  function removeImage() {
+    setForm({ ...form, image_url: null })
+    setImagePreview(null)
+    if (fileInputRef.current) fileInputRef.current.value = ""
   }
 
   async function handleSave() {
@@ -183,6 +240,7 @@ export default function AdminProductsPage() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12">Image</TableHead>
               <TableHead>Name</TableHead>
               <TableHead className="hidden sm:table-cell">Origin</TableHead>
               <TableHead className="hidden md:table-cell">Grade</TableHead>
@@ -197,20 +255,35 @@ export default function AdminProductsPage() {
             {loading ? (
               Array.from({ length: 4 }).map((_, i) => (
                 <TableRow key={i}>
-                  {Array.from({ length: 8 }).map((_, j) => (
+                  {Array.from({ length: 9 }).map((_, j) => (
                     <TableCell key={j}><Skeleton className="h-4 w-16" /></TableCell>
                   ))}
                 </TableRow>
               ))
             ) : products.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
                   No products found. Add your first product.
                 </TableCell>
               </TableRow>
             ) : (
               products.map((product) => (
                 <TableRow key={product.id}>
+                  <TableCell>
+                    {product.image_url ? (
+                      <Image
+                        src={product.image_url}
+                        alt={product.name}
+                        width={40}
+                        height={40}
+                        className="h-10 w-10 rounded-lg object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/40">
+                        <ImageIcon className="h-5 w-5 text-muted-foreground/40" />
+                      </div>
+                    )}
+                  </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell className="hidden sm:table-cell">{product.origin}</TableCell>
                   <TableCell className="hidden md:table-cell">{product.grade}</TableCell>
@@ -249,6 +322,53 @@ export default function AdminProductsPage() {
             <DialogTitle>{editingProduct ? "Edit Product" : "Add Product"}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
+            {/* Image Upload */}
+            <div className="grid gap-2">
+              <Label>Product Image</Label>
+              {imagePreview ? (
+                <div className="relative w-full">
+                  <Image
+                    src={imagePreview}
+                    alt="Product preview"
+                    width={400}
+                    height={200}
+                    className="h-48 w-full rounded-lg border border-border object-cover"
+                  />
+                  <button
+                    onClick={removeImage}
+                    className="absolute right-2 top-2 rounded-full bg-black/70 p-1.5 text-white shadow-md hover:bg-black/90"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex h-36 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border bg-secondary/30 transition-colors hover:border-primary/50 hover:bg-secondary/50"
+                >
+                  {uploading ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                      <span className="text-xs text-muted-foreground">Uploading...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="h-8 w-8 text-muted-foreground/50" />
+                      <span className="text-xs text-muted-foreground">Click to upload image</span>
+                      <span className="text-[10px] text-muted-foreground/70">JPG, PNG, WebP — max 5MB</span>
+                    </>
+                  )}
+                </div>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+            </div>
+
             <div className="grid gap-2">
               <Label htmlFor="name">Name</Label>
               <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
@@ -308,7 +428,7 @@ export default function AdminProductsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={saving || !form.name}>
+            <Button onClick={handleSave} disabled={saving || uploading || !form.name}>
               {saving ? "Saving..." : editingProduct ? "Update" : "Create"}
             </Button>
           </DialogFooter>

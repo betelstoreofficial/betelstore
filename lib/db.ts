@@ -16,6 +16,7 @@ export interface Product {
   available: boolean
   description: string
   tag?: string | null
+  image_url?: string | null
   created_at?: string
 }
 

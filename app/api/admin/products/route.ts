@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
       available: body.available ?? true,
       description: body.description ?? '',
       tag: body.tag || null,
+      image_url: body.image_url || null,
     })
     .select()
     .single()
@@ -90,6 +91,7 @@ export async function PUT(request: NextRequest) {
       available: body.available,
       description: body.description,
       tag: body.tag || null,
+      image_url: body.image_url || null,
     })
     .eq('id', body.id)
     .select()
