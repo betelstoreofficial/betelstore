@@ -1,14 +1,44 @@
 "use client"
 
-import { Suspense, useState, useEffect } from "react"
-import { useSearchParams } from "next/navigation"
+import { Suspense, useState, useEffect, useCallback } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Leaf, AlertCircle, Loader2 } from "lucide-react"
 
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: Record<string, unknown>) => void
+          prompt: (callback?: (notification: { isNotDisplayed: () => boolean; isSkippedMoment: () => boolean }) => void) => void
+        }
+      }
+    }
+  }
+}
+
+function loadGoogleScript(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (window.google?.accounts?.id) {
+      resolve()
+      return
+    }
+    const script = document.createElement("script")
+    script.src = "https://accounts.google.com/gsi/client"
+    script.async = true
+    script.defer = true
+    script.onload = () => resolve()
+    script.onerror = () => reject(new Error("Failed to load Google Identity Services"))
+    document.head.appendChild(script)
+  })
+}
+
 function LoginForm() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -19,24 +49,15 @@ function LoginForm() {
     }
   }, [searchParams])
 
-  const handleGoogleLogin = async () => {
+  const handleCredentialResponse = useCallback(async (response: { credential: string }) => {
     try {
       setIsLoading(true)
       setError(null)
 
       const supabase = createClient()
-      const redirectPath = searchParams.get("redirectTo") || searchParams.get("redirect") || "/"
-
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithIdToken({
         provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectPath)}`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'select_account',
-          },
-          scopes: 'openid email profile',
-        },
+        token: response.credential,
       })
 
       if (error) {
@@ -45,14 +66,37 @@ function LoginForm() {
         return
       }
 
-      if (data?.url) {
-        window.location.href = data.url
-      } else {
-        setError("Failed to initiate Google sign-in. Please try again.")
-        setIsLoading(false)
-      }
+      const redirectPath = searchParams.get("redirectTo") || searchParams.get("redirect") || "/"
+      router.push(redirectPath)
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred. Please try again.")
+      setIsLoading(false)
+    }
+  }, [searchParams, router])
+
+  const handleGoogleLogin = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      const redirectPath = searchParams.get("redirectTo") || searchParams.get("redirect") || "/"
+      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!
+      const redirectUri = `${window.location.origin}/auth/callback`
+      const state = encodeURIComponent(redirectPath)
+
+      // Direct Google OAuth redirect — shows thebetelstore.com as the origin
+      const googleAuthUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth")
+      googleAuthUrl.searchParams.set("client_id", clientId)
+      googleAuthUrl.searchParams.set("redirect_uri", redirectUri)
+      googleAuthUrl.searchParams.set("response_type", "code")
+      googleAuthUrl.searchParams.set("scope", "openid email profile")
+      googleAuthUrl.searchParams.set("state", state)
+      googleAuthUrl.searchParams.set("access_type", "offline")
+      googleAuthUrl.searchParams.set("prompt", "select_account")
+
+      window.location.href = googleAuthUrl.toString()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to initialize Google sign-in.")
       setIsLoading(false)
     }
   }

@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react"
 import type { Product } from "@/lib/db"
+import { useAuth } from "@/lib/auth-context"
 
 interface CartItem {
   product: Product
@@ -21,29 +22,60 @@ interface CartContextType {
   total: number
 }
 
-const CART_STORAGE_KEY = "betel-cart"
+const CART_STORAGE_KEY_PREFIX = "betel-cart"
+
+function getCartKey(userId: string | null): string {
+  return userId ? `${CART_STORAGE_KEY_PREFIX}-${userId}` : `${CART_STORAGE_KEY_PREFIX}-guest`
+}
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { user, loading: authLoading } = useAuth()
   const [items, setItems] = useState<CartItem[]>([])
   const [hydrated, setHydrated] = useState(false)
+  const [currentCartKey, setCurrentCartKey] = useState<string | null>(null)
 
-  // Load cart from localStorage after mount (avoids hydration mismatch)
+  // Load cart when user changes (login/logout)
   useEffect(() => {
+    if (authLoading) return
+
+    const cartKey = getCartKey(user?.id ?? null)
+
+    // If same key, don't reload
+    if (cartKey === currentCartKey) return
+
     try {
-      const stored = localStorage.getItem(CART_STORAGE_KEY)
-      if (stored) setItems(JSON.parse(stored))
+      const stored = localStorage.getItem(cartKey)
+      if (stored) {
+        setItems(JSON.parse(stored))
+      } else {
+        // If user just logged in and has no saved cart, check if guest cart exists and migrate it
+        if (user?.id) {
+          const guestCart = localStorage.getItem(getCartKey(null))
+          if (guestCart) {
+            const guestItems = JSON.parse(guestCart)
+            if (guestItems.length > 0) {
+              setItems(guestItems)
+              localStorage.removeItem(getCartKey(null))
+            }
+          }
+        } else {
+          setItems([])
+        }
+      }
     } catch { /* ignore */ }
+
+    setCurrentCartKey(cartKey)
     setHydrated(true)
-  }, [])
+  }, [user, authLoading, currentCartKey])
 
   // Persist to localStorage on every change (only after initial load)
   useEffect(() => {
-    if (hydrated) {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items))
+    if (hydrated && currentCartKey) {
+      localStorage.setItem(currentCartKey, JSON.stringify(items))
     }
-  }, [items, hydrated])
+  }, [items, hydrated, currentCartKey])
 
   const addItem = useCallback((product: Product, quantity: number, isBulk: boolean) => {
     setItems((prev) => {

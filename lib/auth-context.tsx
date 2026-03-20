@@ -41,7 +41,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
-    localStorage.removeItem("betel-cart")
     setUser(null)
   }
 

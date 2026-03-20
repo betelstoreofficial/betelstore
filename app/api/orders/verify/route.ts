@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createHmac } from 'crypto'
 import { createClient } from '@/lib/supabase/server'
 import { sendPaymentSuccessToUser } from '@/lib/email'
+import { rateLimit } from '@/lib/rate-limit'
 
 interface VerifyBody {
   orderId: string
@@ -17,6 +18,15 @@ export async function POST(request: Request) {
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limit: max 10 verify attempts per minute per user
+    const { allowed, resetIn } = rateLimit(`verify:${user.id}`, { maxRequests: 10, windowSeconds: 60 })
+    if (!allowed) {
+      return NextResponse.json(
+        { error: `Too many requests. Try again in ${resetIn} seconds.` },
+        { status: 429 }
+      )
     }
 
     const body: VerifyBody = await request.json()
