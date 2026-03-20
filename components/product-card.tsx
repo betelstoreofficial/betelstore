@@ -53,9 +53,9 @@ export function ProductCard({ product, index }: ProductCardProps) {
 
   return (
     <article
-      style={{ animationDelay: `${60 * index}ms` }}
+      
       className={cn(
-        "group relative flex animate-in fade-in slide-in-from-bottom-4 flex-col overflow-hidden rounded-xl border border-border bg-card fill-mode-both transition-shadow duration-300 hover:shadow-lg",
+        "group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow duration-300 hover:shadow-lg",
         !product.available && "opacity-60"
       )}
     >

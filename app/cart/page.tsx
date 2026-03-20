@@ -127,7 +127,7 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-6xl px-4 py-6 md:py-10">
-        <div className="flex animate-in fade-in zoom-in-95 flex-col items-center gap-6 py-20 duration-300">
+        <div className="flex flex-col items-center gap-6 py-20">
           <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-secondary">
             <ShoppingCart className="h-10 w-10 text-muted-foreground" />
           </div>
@@ -152,7 +152,7 @@ export default function CartPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 md:py-10">
-      <div className="mb-6 flex animate-in fade-in slide-in-from-top-2 items-center justify-between duration-300">
+      <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="font-[family-name:var(--font-heading)] text-2xl font-bold text-foreground md:text-3xl">
             Your Cart
@@ -179,8 +179,7 @@ export default function CartPage() {
             return (
               <div
                 key={item.product.id}
-                style={{ animationDelay: `${50 * index}ms` }}
-                className="mb-3 animate-in fade-in slide-in-from-left-4 rounded-xl border border-border bg-card p-4 fill-mode-both duration-300"
+                className="mb-3 rounded-xl border border-border bg-card p-4"
               >
                 <div className="flex gap-4">
                   <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-accent/40">
@@ -258,7 +257,7 @@ export default function CartPage() {
         </div>
 
         {/* Order Summary */}
-        <aside className="h-fit animate-in fade-in slide-in-from-bottom-4 rounded-xl border border-border bg-card p-5 duration-400 lg:w-80">
+        <aside className="h-fit rounded-xl border border-border bg-card p-5 lg:w-80">
           <h2 className="font-[family-name:var(--font-heading)] text-lg font-bold text-card-foreground">
             Order Summary
           </h2>
