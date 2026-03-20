@@ -9,9 +9,9 @@ export interface Product {
   name: string
   origin: string
   grade: string
-  price_per_kg: number
-  bulk_price_per_kg: number
-  bulk_min_kg: number
+  price_per_100: number
+  bulk_price_per_1000: number
+  bulk_min_qty: number
   unit: string
   available: boolean
   description: string
@@ -41,7 +41,7 @@ export interface OrderItem {
   product_id: string
   product_name: string
   quantity: number
-  price_per_kg: number
+  price_per_unit: number
   is_bulk: boolean
   created_at: string
 }
@@ -101,7 +101,7 @@ export interface CreateOrderResponse {
 }
 
 export async function createOrder(
-  items: { productId: string; productName: string; quantity: number; pricePerKg: number; isBulk: boolean }[],
+  items: { productId: string; productName: string; quantity: number; pricePerUnit: number; isBulk: boolean }[],
   subtotal: number,
   discount: number,
   total: number

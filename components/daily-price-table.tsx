@@ -49,7 +49,7 @@ export function DailyPriceTable() {
           <thead>
             <tr className="border-b border-border">
               <th className="pb-3 text-left font-medium text-muted-foreground" scope="col">Variety</th>
-              <th className="pb-3 text-right font-medium text-muted-foreground" scope="col">Today (per kg)</th>
+              <th className="pb-3 text-right font-medium text-muted-foreground" scope="col">Today (per 100)</th>
               <th className="hidden pb-3 text-right font-medium text-muted-foreground sm:table-cell" scope="col">Yesterday</th>
               <th className="pb-3 text-right font-medium text-muted-foreground" scope="col">Change</th>
             </tr>

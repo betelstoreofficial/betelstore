@@ -14,24 +14,42 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, index }: ProductCardProps) {
-  const [quantity, setQuantity] = useState(1)
+  const [quantity, setQuantity] = useState(100)
   const [isBulk, setIsBulk] = useState(false)
   const [added, setAdded] = useState(false)
   const { addItem } = useCart()
 
-  const currentPrice = isBulk ? product.bulk_price_per_kg : product.price_per_kg
+  // quantity is in leaves; price_per_100 is per 100 leaves; bulk_price_per_1000 is per 1000 leaves
+  const currentPrice = isBulk ? product.bulk_price_per_1000 : product.price_per_100
+  const priceLabel = isBulk ? "per 1000 leaves" : "per 100 leaves"
   const savings = isBulk
-    ? (product.price_per_kg - product.bulk_price_per_kg) * quantity
+    ? (product.price_per_100 * 10 - product.bulk_price_per_1000) * (quantity / 1000)
     : 0
+  const savingsPerUnit = product.price_per_100 * 10 - product.bulk_price_per_1000
+
+  // quantity step: 100 for daily, 1000 for bulk
+  const step = isBulk ? 1000 : 100
+  const minQty = isBulk ? product.bulk_min_qty : 100
+
+  // Reset quantity when switching modes
+  const handleModeSwitch = (bulk: boolean) => {
+    setIsBulk(bulk)
+    setQuantity(bulk ? product.bulk_min_qty : 100)
+  }
 
   const handleAdd = useCallback(() => {
     addItem(product, quantity, isBulk)
     setAdded(true)
     setTimeout(() => {
       setAdded(false)
-      setQuantity(1)
+      setQuantity(isBulk ? product.bulk_min_qty : 100)
     }, 600)
   }, [addItem, product, quantity, isBulk])
+
+  // Calculate total for display
+  const itemTotal = isBulk
+    ? (product.bulk_price_per_1000 * quantity) / 1000
+    : (product.price_per_100 * quantity) / 100
 
   return (
     <article
@@ -79,7 +97,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
           {/* Pricing Toggle */}
           <div className="flex items-center gap-2 rounded-lg bg-secondary p-1">
             <button
-              onClick={() => setIsBulk(false)}
+              onClick={() => handleModeSwitch(false)}
               className={cn(
                 "flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
                 !isBulk
@@ -90,7 +108,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
               Daily
             </button>
             <button
-              onClick={() => setIsBulk(true)}
+              onClick={() => handleModeSwitch(true)}
               className={cn(
                 "flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
                 isBulk
@@ -98,7 +116,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
                   : "text-muted-foreground"
               )}
             >
-              Bulk ({"\u2265"}{product.bulk_min_kg}kg)
+              Bulk ({"\u2265"}{product.bulk_min_qty.toLocaleString("en-IN")} leaves)
             </button>
           </div>
 
@@ -107,10 +125,10 @@ export function ProductCard({ product, index }: ProductCardProps) {
             <span className="font-[family-name:var(--font-heading)] text-2xl font-bold text-card-foreground">
               {"\u20B9"}{currentPrice.toLocaleString("en-IN")}
             </span>
-            <span className="text-xs text-muted-foreground">per {product.unit}</span>
-            {isBulk && (
+            <span className="text-xs text-muted-foreground">{priceLabel}</span>
+            {isBulk && savingsPerUnit > 0 && (
               <span className="ml-auto rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-semibold text-success">
-                Save {"\u20B9"}{(product.price_per_kg - product.bulk_price_per_kg)}/kg
+                Save {"\u20B9"}{savingsPerUnit.toLocaleString("en-IN")}/1000
               </span>
             )}
           </div>
@@ -120,24 +138,24 @@ export function ProductCard({ product, index }: ProductCardProps) {
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1 rounded-lg border border-border">
                 <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  onClick={() => setQuantity(Math.max(minQty, quantity - step))}
                   className="flex h-8 w-8 items-center justify-center rounded-l-lg text-muted-foreground transition-colors hover:bg-secondary"
                   aria-label="Decrease quantity"
                 >
                   <Minus className="h-3.5 w-3.5" />
                 </button>
-                <span className="flex w-10 items-center justify-center text-sm font-semibold text-card-foreground">
-                  {quantity}
+                <span className="flex w-14 items-center justify-center text-sm font-semibold text-card-foreground">
+                  {quantity.toLocaleString("en-IN")}
                 </span>
                 <button
-                  onClick={() => setQuantity(quantity + 1)}
+                  onClick={() => setQuantity(quantity + step)}
                   className="flex h-8 w-8 items-center justify-center rounded-r-lg text-muted-foreground transition-colors hover:bg-secondary"
                   aria-label="Increase quantity"
                 >
                   <Plus className="h-3.5 w-3.5" />
                 </button>
               </div>
-              <span className="text-xs text-muted-foreground">kg</span>
+              <span className="text-xs text-muted-foreground">leaves</span>
               <Button
                 onClick={handleAdd}
                 size="sm"

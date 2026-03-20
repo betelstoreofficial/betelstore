@@ -67,7 +67,7 @@ export async function POST(request: Request) {
         sendPaymentSuccessToUser({
           orderId: order.id,
           orderNumber: order.order_number,
-          items: order.items as { product_name: string; quantity: number; price_per_kg: number; is_bulk: boolean }[],
+          items: order.items as { product_name: string; quantity: number; price_per_unit: number; is_bulk: boolean }[],
           subtotal: order.subtotal,
           discount: order.discount,
           total: order.total,

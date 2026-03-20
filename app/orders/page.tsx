@@ -241,11 +241,11 @@ export default function OrdersPage() {
                     <div className="flex-1">
                       <p className="text-sm font-medium text-card-foreground">{item.product_name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {item.quantity} kg × {"\u20B9"}{item.price_per_kg.toLocaleString("en-IN")}/kg
+                        {item.quantity.toLocaleString("en-IN")} leaves × {"\u20B9"}{item.price_per_unit.toLocaleString("en-IN")}/100
                       </p>
                     </div>
                     <span className="text-sm font-semibold text-card-foreground">
-                      {"\u20B9"}{(item.quantity * item.price_per_kg).toLocaleString("en-IN")}
+                      {"\u20B9"}{((item.quantity * item.price_per_unit) / 100).toLocaleString("en-IN")}
                     </span>
                   </div>
                 ))

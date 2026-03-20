@@ -8,7 +8,7 @@ interface OrderItemInput {
   productId: string
   productName: string
   quantity: number
-  pricePerKg: number
+  pricePerUnit: number
   isBulk: boolean
 }
 
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     const productIds = items.map(item => item.productId)
     const { data: products, error: productsError } = await supabase
       .from('products')
-      .select('id, name, price_per_kg, bulk_price_per_kg, bulk_min_kg, available')
+      .select('id, name, price_per_100, bulk_price_per_1000, bulk_min_qty, available')
       .in('id', productIds)
 
     if (productsError || !products) {
@@ -75,32 +75,38 @@ export async function POST(request: Request) {
     }
 
     // Calculate prices server-side using database values
+    // quantity = number of leaves, price_per_100 = price for 100 leaves
     let serverSubtotal = 0
     let serverDiscount = 0
 
     const itemsJson = items.map(item => {
       const product = productMap.get(item.productId)!
-      const isBulkEligible = item.isBulk && item.quantity >= product.bulk_min_kg
-      const effectivePrice = isBulkEligible ? product.bulk_price_per_kg : product.price_per_kg
-      const itemTotal = product.price_per_kg * item.quantity
+      const isBulkEligible = item.isBulk && item.quantity >= product.bulk_min_qty
 
+      // Calculate effective price per 100 leaves
+      const bulkPricePer100 = Number(product.bulk_price_per_1000) / 10
+      const effectivePricePer100 = isBulkEligible ? bulkPricePer100 : Number(product.price_per_100)
+
+      // Total = (price_per_100 * quantity) / 100
+      const itemTotal = (Number(product.price_per_100) * item.quantity) / 100
       serverSubtotal += itemTotal
+
       if (isBulkEligible) {
-        serverDiscount += (product.price_per_kg - product.bulk_price_per_kg) * item.quantity
+        serverDiscount += ((Number(product.price_per_100) - bulkPricePer100) * item.quantity) / 100
       }
 
       return {
         product_id: item.productId,
         product_name: product.name,
         quantity: item.quantity,
-        price_per_kg: Number(effectivePrice),
+        price_per_unit: effectivePricePer100,
         is_bulk: isBulkEligible,
       }
     })
 
     const serverTotal = serverSubtotal - serverDiscount
 
-    // Sanity check — reject if total is zero or negative
+    // Sanity check
     if (serverTotal <= 0) {
       return NextResponse.json({ error: 'Invalid order total' }, { status: 400 })
     }
@@ -129,13 +135,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
     }
 
-    // Create order items in the order_items table
+    // Create order items
     const orderItems = itemsJson.map(item => ({
       order_id: order.id,
       product_id: item.product_id,
       product_name: item.product_name,
       quantity: item.quantity,
-      price_per_kg: item.price_per_kg,
+      price_per_unit: item.price_per_unit,
       is_bulk: item.is_bulk,
     }))
 

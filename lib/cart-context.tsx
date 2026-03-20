@@ -111,14 +111,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0)
 
+  // quantity = number of leaves, price_per_100 = price for 100 leaves
+  // total = (price_per_100 * quantity) / 100
   const subtotal = items.reduce(
-    (sum, i) => sum + i.product.price_per_kg * i.quantity,
+    (sum, i) => sum + (i.product.price_per_100 * i.quantity) / 100,
     0
   )
 
   const discount = items.reduce((sum, i) => {
-    if (i.isBulk && i.quantity >= i.product.bulk_min_kg) {
-      return sum + (i.product.price_per_kg - i.product.bulk_price_per_kg) * i.quantity
+    if (i.isBulk && i.quantity >= i.product.bulk_min_qty) {
+      const bulkPricePer100 = i.product.bulk_price_per_1000 / 10
+      return sum + ((i.product.price_per_100 - bulkPricePer100) * i.quantity) / 100
     }
     return sum
   }, 0)

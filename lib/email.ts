@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
 interface OrderItem {
   product_name: string
   quantity: number
-  price_per_kg: number
+  price_per_unit: number
   is_bulk: boolean
 }
 
@@ -37,9 +37,9 @@ function buildItemsTable(items: OrderItem[]): string {
         ${item.product_name}
         ${item.is_bulk ? '<span style="background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-left: 6px;">Bulk</span>' : ''}
       </td>
-      <td style="padding: 10px 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #374151; text-align: center;">${item.quantity} kg</td>
-      <td style="padding: 10px 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #374151; text-align: right;">${formatCurrency(item.price_per_kg)}/kg</td>
-      <td style="padding: 10px 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #374151; text-align: right; font-weight: 600;">${formatCurrency(item.price_per_kg * item.quantity)}</td>
+      <td style="padding: 10px 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #374151; text-align: center;">${item.quantity.toLocaleString('en-IN')} leaves</td>
+      <td style="padding: 10px 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #374151; text-align: right;">${formatCurrency(item.price_per_unit)}/100</td>
+      <td style="padding: 10px 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #374151; text-align: right; font-weight: 600;">${formatCurrency((item.price_per_unit * item.quantity) / 100)}</td>
     </tr>
   `).join('')
 
@@ -48,8 +48,8 @@ function buildItemsTable(items: OrderItem[]): string {
       <thead>
         <tr style="background: #f9fafb;">
           <th style="padding: 10px 12px; text-align: left; font-size: 12px; color: #6b7280; font-weight: 600; text-transform: uppercase; border-bottom: 2px solid #e5e7eb;">Product</th>
-          <th style="padding: 10px 12px; text-align: center; font-size: 12px; color: #6b7280; font-weight: 600; text-transform: uppercase; border-bottom: 2px solid #e5e7eb;">Qty</th>
-          <th style="padding: 10px 12px; text-align: right; font-size: 12px; color: #6b7280; font-weight: 600; text-transform: uppercase; border-bottom: 2px solid #e5e7eb;">Rate</th>
+          <th style="padding: 10px 12px; text-align: center; font-size: 12px; color: #6b7280; font-weight: 600; text-transform: uppercase; border-bottom: 2px solid #e5e7eb;">Leaves</th>
+          <th style="padding: 10px 12px; text-align: right; font-size: 12px; color: #6b7280; font-weight: 600; text-transform: uppercase; border-bottom: 2px solid #e5e7eb;">Rate/100</th>
           <th style="padding: 10px 12px; text-align: right; font-size: 12px; color: #6b7280; font-weight: 600; text-transform: uppercase; border-bottom: 2px solid #e5e7eb;">Amount</th>
         </tr>
       </thead>

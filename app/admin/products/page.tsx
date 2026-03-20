@@ -48,9 +48,9 @@ interface Product {
   name: string
   origin: string
   grade: string
-  price_per_kg: number
-  bulk_price_per_kg: number
-  bulk_min_kg: number
+  price_per_100: number
+  bulk_price_per_1000: number
+  bulk_min_qty: number
   unit: string
   available: boolean
   description: string
@@ -61,10 +61,10 @@ const emptyProduct: Omit<Product, "id"> = {
   name: "",
   origin: "",
   grade: "Grade A",
-  price_per_kg: 0,
-  bulk_price_per_kg: 0,
-  bulk_min_kg: 20,
-  unit: "kg",
+  price_per_100: 0,
+  bulk_price_per_1000: 0,
+  bulk_min_qty: 1000,
+  unit: "leaves",
   available: true,
   description: "",
   tag: null,
@@ -105,9 +105,9 @@ export default function AdminProductsPage() {
       name: product.name,
       origin: product.origin,
       grade: product.grade,
-      price_per_kg: product.price_per_kg,
-      bulk_price_per_kg: product.bulk_price_per_kg,
-      bulk_min_kg: product.bulk_min_kg,
+      price_per_100: product.price_per_100,
+      bulk_price_per_1000: product.bulk_price_per_1000,
+      bulk_min_qty: product.bulk_min_qty,
       unit: product.unit,
       available: product.available,
       description: product.description,
@@ -186,8 +186,8 @@ export default function AdminProductsPage() {
               <TableHead>Name</TableHead>
               <TableHead className="hidden sm:table-cell">Origin</TableHead>
               <TableHead className="hidden md:table-cell">Grade</TableHead>
-              <TableHead className="text-right">Price</TableHead>
-              <TableHead className="hidden lg:table-cell text-right">Bulk Price</TableHead>
+              <TableHead className="text-right">Price/100</TableHead>
+              <TableHead className="hidden lg:table-cell text-right">Bulk/1000</TableHead>
               <TableHead className="text-center">Available</TableHead>
               <TableHead className="hidden md:table-cell">Tag</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -214,8 +214,8 @@ export default function AdminProductsPage() {
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell className="hidden sm:table-cell">{product.origin}</TableCell>
                   <TableCell className="hidden md:table-cell">{product.grade}</TableCell>
-                  <TableCell className="text-right">{"\u20B9"}{product.price_per_kg}</TableCell>
-                  <TableCell className="hidden lg:table-cell text-right">{"\u20B9"}{product.bulk_price_per_kg}</TableCell>
+                  <TableCell className="text-right">{"\u20B9"}{product.price_per_100}</TableCell>
+                  <TableCell className="hidden lg:table-cell text-right">{"\u20B9"}{product.bulk_price_per_1000}</TableCell>
                   <TableCell className="text-center">
                     <Switch
                       checked={product.available}
@@ -272,18 +272,18 @@ export default function AdminProductsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="price">Price per kg</Label>
-                <Input id="price" type="number" value={form.price_per_kg} onChange={(e) => setForm({ ...form, price_per_kg: Number(e.target.value) })} />
+                <Label htmlFor="price">Price per 100 leaves</Label>
+                <Input id="price" type="number" value={form.price_per_100} onChange={(e) => setForm({ ...form, price_per_100: Number(e.target.value) })} />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="bulk_price">Bulk Price per kg</Label>
-                <Input id="bulk_price" type="number" value={form.bulk_price_per_kg} onChange={(e) => setForm({ ...form, bulk_price_per_kg: Number(e.target.value) })} />
+                <Label htmlFor="bulk_price">Bulk Price per 1000 leaves</Label>
+                <Input id="bulk_price" type="number" value={form.bulk_price_per_1000} onChange={(e) => setForm({ ...form, bulk_price_per_1000: Number(e.target.value) })} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="bulk_min">Bulk Min (kg)</Label>
-                <Input id="bulk_min" type="number" value={form.bulk_min_kg} onChange={(e) => setForm({ ...form, bulk_min_kg: Number(e.target.value) })} />
+                <Label htmlFor="bulk_min">Bulk Min (leaves)</Label>
+                <Input id="bulk_min" type="number" value={form.bulk_min_qty} onChange={(e) => setForm({ ...form, bulk_min_qty: Number(e.target.value) })} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="tag">Tag</Label>
@@ -321,7 +321,7 @@ export default function AdminProductsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Product</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this product? This action cannot be undone.
+              Are you sure you want to delete this product? This will also remove it from mandi rates. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

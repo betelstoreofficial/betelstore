@@ -46,18 +46,18 @@ export default function CartPage() {
 
     setPlacing(true)
     try {
-      const orderItems = items.map((item) => ({
-        productId: item.product.id,
-        productName: item.product.name,
-        quantity: item.quantity,
-        pricePerKg:
-          item.isBulk && item.quantity >= item.product.bulk_min_kg
-            ? item.product.bulk_price_per_kg
-            : item.product.price_per_kg,
-        isBulk: item.isBulk && item.quantity >= item.product.bulk_min_kg,
-      }))
+      const orderItems = items.map((item) => {
+        const isBulkActive = item.isBulk && item.quantity >= item.product.bulk_min_qty
+        const bulkPricePer100 = item.product.bulk_price_per_1000 / 10
+        return {
+          productId: item.product.id,
+          productName: item.product.name,
+          quantity: item.quantity,
+          pricePerUnit: isBulkActive ? bulkPricePer100 : item.product.price_per_100,
+          isBulk: isBulkActive,
+        }
+      })
 
-      // 1. Create order + Razorpay order via API
       const { orderId, razorpayOrderId, keyId, amount, currency } = await createOrder(
         orderItems,
         subtotal,
@@ -65,20 +65,17 @@ export default function CartPage() {
         total
       )
 
-      // 2. Load Razorpay checkout script
       await loadRazorpayScript()
 
-      // 3. Open Razorpay checkout modal
       const rzp = new window.Razorpay({
         key: keyId,
         amount,
         currency,
-        name: "Betel Wholesale",
+        name: "The Betel Store",
         description: "Order Payment",
         order_id: razorpayOrderId,
         handler: async (response: RazorpayResponse) => {
           try {
-            // 4. Verify payment signature
             const result = await verifyPayment({
               orderId,
               razorpay_order_id: response.razorpay_order_id,
@@ -173,12 +170,11 @@ export default function CartPage() {
         {/* Cart Items */}
         <div className="flex-1">
           {items.map((item, index) => {
-            const effectivePrice =
-              item.isBulk && item.quantity >= item.product.bulk_min_kg
-                ? item.product.bulk_price_per_kg
-                : item.product.price_per_kg
-            const itemTotal = effectivePrice * item.quantity
-            const isBulkActive = item.isBulk && item.quantity >= item.product.bulk_min_kg
+            const isBulkActive = item.isBulk && item.quantity >= item.product.bulk_min_qty
+            const bulkPricePer100 = item.product.bulk_price_per_1000 / 10
+            const effectivePrice = isBulkActive ? bulkPricePer100 : item.product.price_per_100
+            const itemTotal = (effectivePrice * item.quantity) / 100
+            const step = item.isBulk ? 1000 : 100
 
             return (
               <div
@@ -213,30 +209,31 @@ export default function CartPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1 rounded-lg border border-border">
                         <button
-                          onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                          onClick={() => updateQuantity(item.product.id, Math.max(step, item.quantity - step))}
                           className="flex h-8 w-8 items-center justify-center rounded-l-lg text-muted-foreground transition-colors hover:bg-secondary"
                           aria-label="Decrease quantity"
                         >
                           <Minus className="h-3.5 w-3.5" />
                         </button>
-                        <span className="flex w-12 items-center justify-center text-sm font-semibold text-card-foreground">
-                          {item.quantity} kg
+                        <span className="flex w-16 items-center justify-center text-sm font-semibold text-card-foreground">
+                          {item.quantity.toLocaleString("en-IN")}
                         </span>
                         <button
-                          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                          onClick={() => updateQuantity(item.product.id, item.quantity + step)}
                           className="flex h-8 w-8 items-center justify-center rounded-r-lg text-muted-foreground transition-colors hover:bg-secondary"
                           aria-label="Increase quantity"
                         >
                           <Plus className="h-3.5 w-3.5" />
                         </button>
                       </div>
+                      <span className="text-xs text-muted-foreground ml-1">leaves</span>
 
-                      <div className="text-right">
+                      <div className="text-right ml-auto">
                         <p className="text-sm font-bold text-card-foreground">
                           {"\u20B9"}{itemTotal.toLocaleString("en-IN")}
                         </p>
                         <p className="text-[11px] text-muted-foreground">
-                          {"\u20B9"}{effectivePrice.toLocaleString("en-IN")}/kg
+                          {"\u20B9"}{effectivePrice.toLocaleString("en-IN")}/100 leaves
                         </p>
                       </div>
                     </div>
@@ -244,13 +241,13 @@ export default function CartPage() {
                     {isBulkActive && (
                       <div className="rounded-lg bg-success/10 px-3 py-1.5 text-[11px] font-medium text-success">
                         Bulk pricing applied &mdash; saving {"\u20B9"}
-                        {((item.product.price_per_kg - item.product.bulk_price_per_kg) * item.quantity).toLocaleString("en-IN")}
+                        {(((item.product.price_per_100 - bulkPricePer100) * item.quantity) / 100).toLocaleString("en-IN")}
                       </div>
                     )}
 
-                    {item.isBulk && item.quantity < item.product.bulk_min_kg && (
+                    {item.isBulk && item.quantity < item.product.bulk_min_qty && (
                       <div className="rounded-lg bg-warning/10 px-3 py-1.5 text-[11px] font-medium text-warning-foreground">
-                        Add {item.product.bulk_min_kg - item.quantity} more kg for bulk pricing
+                        Add {(item.product.bulk_min_qty - item.quantity).toLocaleString("en-IN")} more leaves for bulk pricing
                       </div>
                     )}
                   </div>

@@ -38,7 +38,7 @@ interface OrderCustomer {
 interface OrderItem {
   product_name: string
   quantity: number
-  price_per_kg: number
+  price_per_unit: number
   is_bulk: boolean
 }
 
@@ -255,14 +255,14 @@ export default function AdminOrdersPage() {
                         <div>
                           <span className="font-medium">{item.product_name}</span>
                           <span className="ml-2 text-muted-foreground">
-                            {item.quantity} kg @ {"\u20B9"}{item.price_per_kg}
+                            {item.quantity.toLocaleString("en-IN")} leaves @ {"\u20B9"}{item.price_per_unit}/100
                           </span>
                           {item.is_bulk && (
                             <Badge variant="secondary" className="ml-2 text-[10px]">Bulk</Badge>
                           )}
                         </div>
                         <span className="font-medium">
-                          {"\u20B9"}{(item.quantity * item.price_per_kg).toLocaleString("en-IN")}
+                          {"\u20B9"}{((item.quantity * item.price_per_unit) / 100).toLocaleString("en-IN")}
                         </span>
                       </div>
                     ))}
