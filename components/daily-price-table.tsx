@@ -34,7 +34,7 @@ export function DailyPriceTable() {
   })
 
   return (
-    <section className="animate-in fade-in slide-in-from-bottom-4 rounded-xl border border-border bg-card p-4 duration-400 md:p-6">
+    <section className="rounded-xl border border-border bg-card p-4 md:p-6">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="font-[family-name:var(--font-heading)] text-lg font-bold text-card-foreground">
           Daily Mandi Rates

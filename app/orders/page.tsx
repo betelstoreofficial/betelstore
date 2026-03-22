@@ -90,7 +90,7 @@ export default function OrdersPage() {
   if (orders.length === 0) {
     return (
       <div className="mx-auto max-w-6xl px-4 py-6 md:py-10">
-        <div className="mb-6 animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="mb-6 ">
           <h1 className="font-[family-name:var(--font-heading)] text-2xl font-bold text-foreground md:text-3xl">
             Order History
           </h1>
@@ -112,7 +112,7 @@ export default function OrdersPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 md:py-10">
-      <div className="mb-6 animate-in fade-in slide-in-from-top-2 duration-300">
+      <div className="mb-6 ">
         <h1 className="font-[family-name:var(--font-heading)] text-2xl font-bold text-foreground md:text-3xl">
           Order History
         </h1>
@@ -131,10 +131,10 @@ export default function OrdersPage() {
               return (
                 <button
                   key={order.id}
-                  style={{ animationDelay: `${50 * i}ms` }}
+                  type="button"
                   onClick={() => setSelectedOrder(order)}
                   className={cn(
-                    "flex animate-in fade-in slide-in-from-bottom-4 items-center gap-4 rounded-xl border border-border bg-card p-4 text-left fill-mode-both transition-all duration-300 hover:shadow-md",
+                    "flex w-full cursor-pointer items-center gap-4 rounded-xl border border-border bg-card p-4 text-left transition-all hover:shadow-md active:bg-accent/50",
                     selectedOrder?.id === order.id && "border-primary ring-1 ring-primary/20"
                   )}
                 >
@@ -185,15 +185,16 @@ export default function OrdersPage() {
         {selectedOrder && (
           <aside
             key={selectedOrder.id}
-            className="h-fit animate-in fade-in slide-in-from-right-4 rounded-xl border border-border bg-card p-5 duration-300 lg:w-96"
+            className="h-fit rounded-xl border border-border bg-card p-5 lg:w-96"
           >
             <div className="flex items-center justify-between">
               <h2 className="font-[family-name:var(--font-heading)] text-lg font-bold text-card-foreground">
                 {selectedOrder.id.slice(0, 8).toUpperCase()}
               </h2>
               <button
+                type="button"
                 onClick={() => setSelectedOrder(null)}
-                className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-secondary"
+                className="cursor-pointer rounded-lg p-2 text-muted-foreground transition-colors hover:bg-secondary active:bg-secondary"
                 aria-label="Close order details"
               >
                 <X className="h-4 w-4" />

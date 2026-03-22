@@ -19,7 +19,7 @@
   --accent: oklch(0.91 0.06 152);
   --accent-foreground: oklch(0.22 0.1 152);
   --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.98 0.01 27);
   --border: oklch(0.90 0.025 152);
   --input: oklch(0.90 0.025 152);
   --ring: oklch(0.50 0.16 152);
@@ -134,5 +134,18 @@
   }
   body {
     @apply bg-background text-foreground;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+  /* Fix iOS click events on non-interactive elements */
+  [role="button"], [onclick] {
+    cursor: pointer;
+  }
+  /* Ensure minimum touch target size on mobile */
+  @media (pointer: coarse) {
+    button, [role="button"], a {
+      min-height: 44px;
+      min-width: 44px;
+    }
   }
 }

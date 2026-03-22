@@ -1,11 +1,13 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { Plus, Minus, ShoppingCart, Leaf } from "lucide-react"
+import { Plus, Minus, ShoppingCart, Leaf, Check } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useCart } from "@/lib/cart-context"
+import { toast } from "sonner"
 import type { Product } from "@/lib/db"
 import { cn } from "@/lib/utils"
 
@@ -20,19 +22,17 @@ export function ProductCard({ product, index }: ProductCardProps) {
   const [added, setAdded] = useState(false)
   const { addItem } = useCart()
 
-  // quantity is in leaves; price_per_100 is per 100 leaves; bulk_price_per_1000 is per 1000 leaves
   const currentPrice = isBulk ? product.bulk_price_per_1000 : product.price_per_100
   const priceLabel = isBulk ? "per 1000 leaves" : "per 100 leaves"
+  const bulkPricePer100 = product.bulk_price_per_1000 / 10
   const savings = isBulk
-    ? (product.price_per_100 * 10 - product.bulk_price_per_1000) * (quantity / 1000)
+    ? ((product.price_per_100 - bulkPricePer100) * quantity) / 100
     : 0
   const savingsPerUnit = product.price_per_100 * 10 - product.bulk_price_per_1000
 
-  // quantity step: 100 for daily, 1000 for bulk
-  const step = isBulk ? 1000 : 100
+  const step = 100
   const minQty = isBulk ? product.bulk_min_qty : 100
 
-  // Reset quantity when switching modes
   const handleModeSwitch = (bulk: boolean) => {
     setIsBulk(bulk)
     setQuantity(bulk ? product.bulk_min_qty : 100)
@@ -41,34 +41,33 @@ export function ProductCard({ product, index }: ProductCardProps) {
   const handleAdd = useCallback(() => {
     addItem(product, quantity, isBulk)
     setAdded(true)
+    toast.success(`${product.name} added to cart`, {
+      action: {
+        label: "View Cart",
+        onClick: () => window.location.href = "/cart",
+      },
+    })
     setTimeout(() => {
       setAdded(false)
       setQuantity(isBulk ? product.bulk_min_qty : 100)
-    }, 600)
+    }, 1500)
   }, [addItem, product, quantity, isBulk])
-
-  // Calculate total for display
-  const itemTotal = isBulk
-    ? (product.bulk_price_per_1000 * quantity) / 1000
-    : (product.price_per_100 * quantity) / 100
 
   return (
     <article
-      
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow duration-300 hover:shadow-lg",
+        "group relative flex min-h-[420px] flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow duration-300 hover:shadow-lg",
         !product.available && "opacity-60"
       )}
     >
       {product.tag && (
         <div className="absolute right-3 top-3 z-10">
           <Badge
-            variant="secondary"
             className={cn(
-              "text-xs font-semibold",
-              product.tag === "Best Seller" && "bg-primary text-primary-foreground",
-              product.tag === "Premium" && "bg-warning text-warning-foreground",
-              product.tag === "New Arrival" && "bg-success text-success-foreground"
+              "text-xs font-semibold shadow-md backdrop-blur-sm",
+              product.tag === "Best Seller" && "bg-primary/90 text-white border-0",
+              product.tag === "Premium" && "bg-amber-600/90 text-white border-0",
+              product.tag === "New Arrival" && "bg-emerald-600/90 text-white border-0"
             )}
           >
             {product.tag}
@@ -76,7 +75,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
         </div>
       )}
 
-      <div className="relative flex h-36 items-center justify-center overflow-hidden bg-gradient-to-br from-primary/15 via-accent/40 to-emerald-200/30">
+      <div className="relative flex h-40 items-center justify-center overflow-hidden bg-gradient-to-br from-primary/15 via-accent/40 to-emerald-200/30">
         {product.image_url ? (
           <Image
             src={product.image_url}
@@ -86,7 +85,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
             sizes="(max-width: 768px) 50vw, 33vw"
           />
         ) : (
-          <Leaf className="h-16 w-16 text-primary/40 transition-transform duration-300 group-hover:scale-110 group-hover:text-primary/60" />
+          <Leaf className="h-16 w-16 text-primary/40" />
         )}
       </div>
 
@@ -108,9 +107,10 @@ export function ProductCard({ product, index }: ProductCardProps) {
           {/* Pricing Toggle */}
           <div className="flex items-center gap-2 rounded-lg bg-secondary p-1">
             <button
+              type="button"
               onClick={() => handleModeSwitch(false)}
               className={cn(
-                "flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
+                "flex-1 cursor-pointer rounded-md px-3 py-2 text-xs font-medium transition-all",
                 !isBulk
                   ? "bg-card text-card-foreground shadow-sm"
                   : "text-muted-foreground"
@@ -119,9 +119,10 @@ export function ProductCard({ product, index }: ProductCardProps) {
               Daily
             </button>
             <button
+              type="button"
               onClick={() => handleModeSwitch(true)}
               className={cn(
-                "flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
+                "flex-1 cursor-pointer rounded-md px-3 py-2 text-xs font-medium transition-all",
                 isBulk
                   ? "bg-card text-card-foreground shadow-sm"
                   : "text-muted-foreground"
@@ -131,8 +132,8 @@ export function ProductCard({ product, index }: ProductCardProps) {
             </button>
           </div>
 
-          {/* Price Display */}
-          <div className="flex items-baseline gap-2">
+          {/* Price Display - fixed height to prevent layout shift */}
+          <div className="flex h-8 items-baseline gap-2">
             <span className="font-[family-name:var(--font-heading)] text-2xl font-bold text-card-foreground">
               {"\u20B9"}{currentPrice.toLocaleString("en-IN")}
             </span>
@@ -147,34 +148,45 @@ export function ProductCard({ product, index }: ProductCardProps) {
           {/* Quantity + Add */}
           {product.available ? (
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 rounded-lg border border-border">
+              <div className="flex items-center rounded-lg border border-border">
                 <button
+                  type="button"
                   onClick={() => setQuantity(Math.max(minQty, quantity - step))}
-                  className="flex h-8 w-8 items-center justify-center rounded-l-lg text-muted-foreground transition-colors hover:bg-secondary"
+                  className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-l-lg text-muted-foreground transition-colors hover:bg-secondary active:bg-secondary"
                   aria-label="Decrease quantity"
                 >
-                  <Minus className="h-3.5 w-3.5" />
+                  <Minus className="h-4 w-4" />
                 </button>
-                <span className="flex w-14 items-center justify-center text-sm font-semibold text-card-foreground">
+                <span className="flex w-14 items-center justify-center text-sm font-semibold text-card-foreground tabular-nums">
                   {quantity.toLocaleString("en-IN")}
                 </span>
                 <button
+                  type="button"
                   onClick={() => setQuantity(quantity + step)}
-                  className="flex h-8 w-8 items-center justify-center rounded-r-lg text-muted-foreground transition-colors hover:bg-secondary"
+                  className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-r-lg text-muted-foreground transition-colors hover:bg-secondary active:bg-secondary"
                   aria-label="Increase quantity"
                 >
-                  <Plus className="h-3.5 w-3.5" />
+                  <Plus className="h-4 w-4" />
                 </button>
               </div>
               <span className="text-xs text-muted-foreground">leaves</span>
               <Button
                 onClick={handleAdd}
                 size="sm"
-                className={cn("ml-auto gap-1.5", added && "bg-success text-success-foreground")}
+                className={cn("ml-auto gap-1.5 min-w-[80px]", added && "bg-success text-success-foreground")}
                 disabled={added}
               >
-                <ShoppingCart className="h-3.5 w-3.5" />
-                {added ? "Added!" : "Add"}
+                {added ? (
+                  <>
+                    <Check className="h-3.5 w-3.5" />
+                    Added!
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="h-3.5 w-3.5" />
+                    Add
+                  </>
+                )}
               </Button>
             </div>
           ) : (
@@ -183,11 +195,14 @@ export function ProductCard({ product, index }: ProductCardProps) {
             </div>
           )}
 
-          {savings > 0 && (
-            <p className="text-xs font-medium text-success">
-              You save {"\u20B9"}{savings.toLocaleString("en-IN")} on this order
-            </p>
-          )}
+          {/* Savings text - fixed height so card doesn't shift */}
+          <div className="h-4">
+            {savings > 0 && (
+              <p className="text-xs font-medium text-success">
+                You save {"\u20B9"}{savings.toLocaleString("en-IN")} on this order
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </article>

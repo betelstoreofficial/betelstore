@@ -30,7 +30,7 @@ export default function ShopPage() {
       {/* Hero + Mandi Rates Side by Side */}
       <div className="mb-8 grid grid-cols-1 gap-6 md:mb-12 lg:grid-cols-2 lg:items-start">
         {/* Hero Section */}
-        <section className="flex animate-in fade-in slide-in-from-top-2 flex-col justify-center gap-4 duration-500">
+        <section className="flex flex-col justify-center gap-4">
           <div className="flex flex-col gap-2">
             <h1 className="font-[family-name:var(--font-heading)] text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl text-balance">
               Premium Betel Leaves,
@@ -47,7 +47,7 @@ export default function ShopPage() {
             {features.map((f) => (
               <div
                 key={f.label}
-                className="flex animate-in fade-in zoom-in-95 items-center gap-2 rounded-full border border-border bg-card px-4 py-2 duration-300"
+                className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2"
               >
                 <f.icon className="h-4 w-4 text-primary" />
                 <span className="text-xs font-medium text-card-foreground">{f.label}</span>
@@ -74,7 +74,7 @@ export default function ShopPage() {
         {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-80 animate-pulse rounded-xl bg-muted" />
+              <div key={i} className="h-[420px] animate-pulse rounded-xl bg-muted" />
             ))}
           </div>
         ) : (

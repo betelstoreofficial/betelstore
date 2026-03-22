@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Leaf, AlertCircle, Loader2 } from "lucide-react"
+import { Leaf, AlertCircle, Loader2, ArrowLeft } from "lucide-react"
 
 declare global {
   interface Window {
@@ -104,13 +104,26 @@ function LoginForm() {
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-4">
       <Card className="w-full max-w-sm border-border bg-card">
-        <CardHeader className="items-center text-center">
-          <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-            <Leaf className="h-6 w-6 text-primary" />
+        <CardHeader className="text-center">
+          <div className="flex items-center justify-between mb-4">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="cursor-pointer rounded-lg p-2 text-muted-foreground transition-colors hover:bg-secondary active:bg-secondary"
+              aria-label="Go back"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <div className="w-9" /> {/* Spacer to balance layout */}
           </div>
-          <CardTitle className="font-[family-name:var(--font-heading)] text-2xl text-card-foreground">
-            Betel Wholesale
-          </CardTitle>
+          <div className="flex flex-col items-center">
+            <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <Leaf className="h-6 w-6 text-primary" />
+            </div>
+            <CardTitle className="font-[family-name:var(--font-heading)] text-2xl text-card-foreground">
+              The Betel Store
+            </CardTitle>
+          </div>
           <CardDescription className="text-muted-foreground">
             Sign in to access wholesale prices, place orders, and track deliveries.
           </CardDescription>

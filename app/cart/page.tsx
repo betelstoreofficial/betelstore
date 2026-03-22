@@ -2,11 +2,22 @@
 
 import { useState } from "react"
 import { Minus, Plus, Trash2, ShoppingCart, ArrowLeft, Leaf, Loader2 } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { useCart } from "@/lib/cart-context"
 import { useAuth } from "@/lib/auth-context"
 import { createOrder, verifyPayment } from "@/lib/db"
@@ -16,6 +27,7 @@ export default function CartPage() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [placing, setPlacing] = useState(false)
+  const [deleteItemId, setDeleteItemId] = useState<string | null>(null)
 
   function loadRazorpayScript(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -124,6 +136,13 @@ export default function CartPage() {
     }
   }
 
+  function handleDeleteConfirm() {
+    if (deleteItemId) {
+      removeItem(deleteItemId)
+      setDeleteItemId(null)
+    }
+  }
+
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-6xl px-4 py-6 md:py-10">
@@ -140,7 +159,7 @@ export default function CartPage() {
             </p>
           </div>
           <Button asChild>
-            <Link href="/">
+            <Link href="/shop">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Continue Shopping
             </Link>
@@ -169,12 +188,12 @@ export default function CartPage() {
       <div className="flex flex-col gap-6 lg:flex-row">
         {/* Cart Items */}
         <div className="flex-1">
-          {items.map((item, index) => {
+          {items.map((item) => {
             const isBulkActive = item.isBulk && item.quantity >= item.product.bulk_min_qty
             const bulkPricePer100 = item.product.bulk_price_per_1000 / 10
             const effectivePrice = isBulkActive ? bulkPricePer100 : item.product.price_per_100
             const itemTotal = (effectivePrice * item.quantity) / 100
-            const step = item.isBulk ? 1000 : 100
+            const step = 100
 
             return (
               <div
@@ -182,8 +201,19 @@ export default function CartPage() {
                 className="mb-3 rounded-xl border border-border bg-card p-4"
               >
                 <div className="flex gap-4">
-                  <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-accent/40">
-                    <Leaf className="h-8 w-8 text-primary/30" />
+                  {/* Product Image */}
+                  <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-accent/40">
+                    {item.product.image_url ? (
+                      <Image
+                        src={item.product.image_url}
+                        alt={item.product.name}
+                        width={64}
+                        height={64}
+                        className="h-16 w-16 rounded-lg object-cover"
+                      />
+                    ) : (
+                      <Leaf className="h-8 w-8 text-primary/30" />
+                    )}
                   </div>
 
                   <div className="flex flex-1 flex-col gap-2">
@@ -197,8 +227,9 @@ export default function CartPage() {
                         </p>
                       </div>
                       <button
-                        onClick={() => removeItem(item.product.id)}
-                        className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                        type="button"
+                        onClick={() => setDeleteItemId(item.product.id)}
+                        className="cursor-pointer rounded-lg p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive active:bg-destructive/10"
                         aria-label={`Remove ${item.product.name}`}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -206,29 +237,31 @@ export default function CartPage() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1 rounded-lg border border-border">
+                      <div className="flex items-center rounded-lg border border-border">
                         <button
+                          type="button"
                           onClick={() => updateQuantity(item.product.id, Math.max(step, item.quantity - step))}
-                          className="flex h-8 w-8 items-center justify-center rounded-l-lg text-muted-foreground transition-colors hover:bg-secondary"
+                          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-l-lg text-muted-foreground transition-colors hover:bg-secondary active:bg-secondary"
                           aria-label="Decrease quantity"
                         >
-                          <Minus className="h-3.5 w-3.5" />
+                          <Minus className="h-4 w-4" />
                         </button>
-                        <span className="flex w-16 items-center justify-center text-sm font-semibold text-card-foreground">
+                        <span className="flex w-16 items-center justify-center text-sm font-semibold text-card-foreground tabular-nums">
                           {item.quantity.toLocaleString("en-IN")}
                         </span>
                         <button
+                          type="button"
                           onClick={() => updateQuantity(item.product.id, item.quantity + step)}
-                          className="flex h-8 w-8 items-center justify-center rounded-r-lg text-muted-foreground transition-colors hover:bg-secondary"
+                          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-r-lg text-muted-foreground transition-colors hover:bg-secondary active:bg-secondary"
                           aria-label="Increase quantity"
                         >
-                          <Plus className="h-3.5 w-3.5" />
+                          <Plus className="h-4 w-4" />
                         </button>
                       </div>
                       <span className="text-xs text-muted-foreground ml-1">leaves</span>
 
                       <div className="text-right ml-auto">
-                        <p className="text-sm font-bold text-card-foreground">
+                        <p className="text-sm font-bold text-card-foreground tabular-nums">
                           {"\u20B9"}{itemTotal.toLocaleString("en-IN")}
                         </p>
                         <p className="text-[11px] text-muted-foreground">
@@ -265,12 +298,12 @@ export default function CartPage() {
           <div className="mt-4 flex flex-col gap-2.5 text-sm">
             <div className="flex justify-between text-muted-foreground">
               <span>Subtotal</span>
-              <span>{"\u20B9"}{subtotal.toLocaleString("en-IN")}</span>
+              <span className="tabular-nums">{"\u20B9"}{subtotal.toLocaleString("en-IN")}</span>
             </div>
             {discount > 0 && (
               <div className="flex justify-between text-success">
                 <span>Bulk Discount</span>
-                <span>-{"\u20B9"}{discount.toLocaleString("en-IN")}</span>
+                <span className="tabular-nums">-{"\u20B9"}{discount.toLocaleString("en-IN")}</span>
               </div>
             )}
             <div className="flex justify-between text-muted-foreground">
@@ -280,7 +313,7 @@ export default function CartPage() {
             <Separator />
             <div className="flex justify-between text-base font-bold text-card-foreground">
               <span>Total</span>
-              <span>{"\u20B9"}{total.toLocaleString("en-IN")}</span>
+              <span className="tabular-nums">{"\u20B9"}{total.toLocaleString("en-IN")}</span>
             </div>
           </div>
 
@@ -301,13 +334,31 @@ export default function CartPage() {
           </Button>
 
           <Button variant="ghost" className="mt-2 w-full" asChild>
-            <Link href="/">
+            <Link href="/shop">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Continue Shopping
             </Link>
           </Button>
         </aside>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteItemId} onOpenChange={(open) => !open && setDeleteItemId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Item</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove this item from your cart?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

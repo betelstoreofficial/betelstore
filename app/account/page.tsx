@@ -71,7 +71,7 @@ export default function AccountPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 md:py-10">
-      <div className="mb-6 animate-in fade-in slide-in-from-top-2 duration-300">
+      <div className="mb-6">
         <h1 className="font-[family-name:var(--font-heading)] text-2xl font-bold text-foreground md:text-3xl">
           Account
         </h1>
@@ -82,7 +82,7 @@ export default function AccountPage() {
 
       <div className="flex flex-col gap-6 lg:flex-row">
         {/* Profile Card */}
-        <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 rounded-xl border border-border bg-card duration-400">
+        <div className="flex-1 rounded-xl border border-border bg-card">
           <div className="flex items-center gap-4 p-5">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
               {user.user_metadata?.avatar_url ? (
@@ -127,7 +127,7 @@ export default function AccountPage() {
                 <div
                   key={field.label}
                   style={{ animationDelay: `${100 + i * 50}ms` }}
-                  className="flex animate-in fade-in slide-in-from-left-4 items-start gap-3 fill-mode-both duration-300"
+                  className="flex items-start gap-3"
                 >
                   <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-secondary">
                     <field.icon className="h-4 w-4 text-muted-foreground" />
@@ -143,7 +143,7 @@ export default function AccountPage() {
         </div>
 
         {/* Sidebar Actions */}
-        <div className="flex animate-in fade-in slide-in-from-bottom-4 flex-col gap-4 duration-500 lg:w-72">
+        <div className="flex flex-col gap-4 lg:w-72">
           <div className="rounded-xl border border-border bg-card p-4">
             <h3 className="mb-3 text-sm font-semibold text-card-foreground">Quick Links</h3>
             <div className="flex flex-col gap-1">

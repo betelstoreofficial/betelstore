@@ -84,7 +84,7 @@ export function TopNav() {
                 <link.icon className="h-4 w-4" />
                 {link.label}
                 {link.href === "/cart" && totalItems > 0 && (
-                  <span className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
+                  <span className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground tabular-nums">
                     {totalItems}
                   </span>
                 )}
