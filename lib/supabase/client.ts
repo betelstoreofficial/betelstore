@@ -3,16 +3,25 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 let client: SupabaseClient | null = null
 
-// Use proxy path to avoid ISP blocks on *.supabase.co
-const supabaseUrl = typeof window !== 'undefined'
-  ? `${window.location.origin}/supabase`
-  : process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 
 export function createClient() {
   if (client) return client
   client = createBrowserClient(
     supabaseUrl,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      global: {
+        fetch: (input, init) => {
+          // Proxy Supabase requests through our domain to avoid ISP blocks
+          if (typeof window !== 'undefined' && typeof input === 'string' && input.startsWith(supabaseUrl)) {
+            const path = input.slice(supabaseUrl.length)
+            return fetch(`${window.location.origin}/supabase${path}`, init)
+          }
+          return fetch(input, init)
+        },
+      },
+    },
   )
   return client
 }
