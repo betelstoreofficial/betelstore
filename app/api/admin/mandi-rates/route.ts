@@ -66,6 +66,19 @@ export async function PUT(request: NextRequest) {
 
     if (error) {
       errors.push(`Failed to update ${existing.variety}: ${error.message}`)
+      continue
+    }
+
+    // Sync price back to the linked product
+    if (existing.product_id) {
+      const { error: productError } = await supabase
+        .from('products')
+        .update({ price_per_100: rate.today_price })
+        .eq('id', existing.product_id)
+
+      if (productError) {
+        errors.push(`Failed to sync price to product ${existing.variety}: ${productError.message}`)
+      }
     }
   }
 

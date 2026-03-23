@@ -101,14 +101,17 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  // Auto-update mandi rate variety name if product name changed
+  // Auto-sync mandi rate with product changes (name + price)
   if (data) {
     await supabase
       .from('mandi_rates')
-      .update({ variety: data.name })
+      .update({
+        variety: data.name,
+        today_price: data.price_per_100,
+      })
       .eq('product_id', data.id)
       .then(({ error: mandiError }) => {
-        if (mandiError) console.error('Failed to update mandi rate name:', mandiError)
+        if (mandiError) console.error('Failed to update mandi rate:', mandiError)
       })
   }
 
