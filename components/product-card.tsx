@@ -22,10 +22,13 @@ export function ProductCard({ product, index }: ProductCardProps) {
   const [added, setAdded] = useState(false)
   const { addItem } = useCart()
 
-  const currentPrice = isBulk ? product.bulk_price_per_1000 : product.price_per_100
-  const priceLabel = isBulk ? "per 1000 leaves" : "per 100 leaves"
+  // Auto-apply bulk pricing when quantity reaches bulk_min_qty
+  const bulkEligible = quantity >= product.bulk_min_qty
+  const effectiveBulk = isBulk || bulkEligible
+  const currentPrice = effectiveBulk ? product.bulk_price_per_1000 : product.price_per_100
+  const priceLabel = effectiveBulk ? "per 1000 leaves" : "per 100 leaves"
   const bulkPricePer100 = product.bulk_price_per_1000 / 10
-  const savings = isBulk
+  const savings = effectiveBulk
     ? ((product.price_per_100 - bulkPricePer100) * quantity) / 100
     : 0
   const savingsPerUnit = product.price_per_100 * 10 - product.bulk_price_per_1000
@@ -39,7 +42,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
   }
 
   const handleAdd = useCallback(() => {
-    addItem(product, quantity, isBulk)
+    addItem(product, quantity, effectiveBulk)
     setAdded(true)
     toast.success(`${product.name} added to cart`, {
       action: {
@@ -51,7 +54,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
       setAdded(false)
       setQuantity(isBulk ? product.bulk_min_qty : 100)
     }, 1500)
-  }, [addItem, product, quantity, isBulk])
+  }, [addItem, product, quantity, isBulk, effectiveBulk])
 
   return (
     <article
@@ -138,7 +141,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
               {"\u20B9"}{currentPrice.toLocaleString("en-IN")}
             </span>
             <span className="text-xs text-muted-foreground">{priceLabel}</span>
-            {isBulk && savingsPerUnit > 0 && (
+            {effectiveBulk && savingsPerUnit > 0 && (
               <span className="ml-auto rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-semibold text-success">
                 Save {"\u20B9"}{savingsPerUnit.toLocaleString("en-IN")}/1000
               </span>
@@ -162,7 +165,11 @@ export function ProductCard({ product, index }: ProductCardProps) {
                 </span>
                 <button
                   type="button"
-                  onClick={() => setQuantity(quantity + step)}
+                  onClick={() => {
+                    const newQty = quantity + step
+                    setQuantity(newQty)
+                    if (newQty >= product.bulk_min_qty && !isBulk) setIsBulk(true)
+                  }}
                   className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-r-lg text-muted-foreground transition-colors hover:bg-secondary active:bg-secondary"
                   aria-label="Increase quantity"
                 >

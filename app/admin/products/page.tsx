@@ -174,6 +174,10 @@ export default function AdminProductsPage() {
   }
 
   async function handleSave() {
+    if (form.bulk_price_per_1000 > 0 && form.price_per_100 > 0 && form.bulk_price_per_1000 / 10 >= form.price_per_100) {
+      toast.error("Bulk price per 1000 must be cheaper than 10× daily price per 100")
+      return
+    }
     setSaving(true)
     try {
       const isEdit = !!editingProduct
@@ -393,13 +397,23 @@ export default function AdminProductsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="price">Price per 100 leaves</Label>
-                <Input id="price" type="number" value={form.price_per_100} onChange={(e) => setForm({ ...form, price_per_100: Number(e.target.value) })} />
+                <Input id="price" type="number" value={form.price_per_100} onChange={(e) => {
+                  const price = Number(e.target.value)
+                  setForm({ ...form, price_per_100: price, bulk_price_per_1000: Math.round(price * 9) })
+                }} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="bulk_price">Bulk Price per 1000 leaves</Label>
                 <Input id="bulk_price" type="number" value={form.bulk_price_per_1000} onChange={(e) => setForm({ ...form, bulk_price_per_1000: Number(e.target.value) })} />
               </div>
             </div>
+            {form.price_per_100 > 0 && form.bulk_price_per_1000 > 0 && (
+              <p className={`text-xs ${form.bulk_price_per_1000 / 10 >= form.price_per_100 ? "text-destructive font-medium" : "text-muted-foreground"}`}>
+                {form.bulk_price_per_1000 / 10 >= form.price_per_100
+                  ? `⚠ Bulk rate (₹${(form.bulk_price_per_1000 / 10).toFixed(0)}/100) is not cheaper than daily (₹${form.price_per_100}/100)`
+                  : `Bulk rate: ₹${(form.bulk_price_per_1000 / 10).toFixed(0)} per 100 leaves (${Math.round((1 - form.bulk_price_per_1000 / 10 / form.price_per_100) * 100)}% off)`}
+              </p>
+            )}
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="bulk_min">Bulk Min (leaves)</Label>

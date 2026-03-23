@@ -98,7 +98,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
     setItems((prev) =>
       prev.map((i) =>
-        i.product.id === productId ? { ...i, quantity } : i
+        i.product.id === productId
+          ? { ...i, quantity, isBulk: quantity >= i.product.bulk_min_qty }
+          : i
       )
     )
   }, [])
