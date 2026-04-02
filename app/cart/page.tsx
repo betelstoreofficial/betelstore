@@ -28,6 +28,7 @@ export default function CartPage() {
   const router = useRouter()
   const [placing, setPlacing] = useState(false)
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null)
+  const [showClearConfirm, setShowClearConfirm] = useState(false)
 
   function loadRazorpayScript(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -180,7 +181,7 @@ export default function CartPage() {
             {items.length} {items.length === 1 ? "item" : "items"}
           </p>
         </div>
-        <Button variant="ghost" size="sm" onClick={clearCart} className="text-destructive hover:text-destructive">
+        <Button variant="ghost" size="sm" onClick={() => setShowClearConfirm(true)} className="text-destructive hover:text-destructive">
           Clear all
         </Button>
       </div>
@@ -189,9 +190,9 @@ export default function CartPage() {
         {/* Cart Items */}
         <div className="flex-1">
           {items.map((item) => {
-            const isBulkActive = item.isBulk && item.quantity >= item.product.bulk_min_qty
-            const bulkPricePer100 = item.product.bulk_price_per_1000 / 10
-            const effectivePrice = isBulkActive ? bulkPricePer100 : item.product.price_per_100
+            const isBulkActive = item.isBulk && item.quantity >= (item.product.bulk_min_qty || 0)
+            const bulkPricePer100 = (item.product.bulk_price_per_1000 || 0) / 10
+            const effectivePrice = isBulkActive ? bulkPricePer100 : (item.product.price_per_100 || 0)
             const itemTotal = (effectivePrice * item.quantity) / 100
             const step = 100
 
@@ -341,6 +342,24 @@ export default function CartPage() {
           </Button>
         </aside>
       </div>
+
+      {/* Clear All Confirmation Dialog */}
+      <AlertDialog open={showClearConfirm} onOpenChange={setShowClearConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear Cart</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove all items from your cart?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { clearCart(); setShowClearConfirm(false) }} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Clear All
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteItemId} onOpenChange={(open) => !open && setDeleteItemId(null)}>

@@ -92,9 +92,18 @@ export default function AdminProductsPage() {
   const fetchProducts = useCallback(() => {
     setLoading(true)
     fetch("/api/admin/products")
-      .then((res) => res.json())
-      .then((data) => setProducts(data))
-      .catch(console.error)
+      .then((res) => {
+        if (!res.ok) throw new Error(`Failed to load products (${res.status})`)
+        return res.json()
+      })
+      .then((data) => {
+        if (Array.isArray(data)) setProducts(data)
+        else throw new Error(data?.error || "Invalid response")
+      })
+      .catch((err) => {
+        console.error(err)
+        toast.error("Failed to load products")
+      })
       .finally(() => setLoading(false))
   }, [])
 

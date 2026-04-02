@@ -137,8 +137,11 @@
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
   }
-  /* Fix iOS click events on non-interactive elements */
-  [role="button"], [onclick] {
+  /* Ensure pointer cursor on all interactive elements */
+  a, button, [role="button"], [onclick],
+  select, summary,
+  input[type="button"], input[type="submit"], input[type="reset"],
+  input[type="checkbox"], input[type="radio"] {
     cursor: pointer;
   }
   /* Ensure minimum touch target size on mobile */
@@ -147,5 +150,15 @@
       min-height: 44px;
       min-width: 44px;
     }
+  }
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

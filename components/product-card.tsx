@@ -1,11 +1,15 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { Plus, Minus, ShoppingCart, Leaf, Check } from "lucide-react"
+import { Plus, Minus, ShoppingCart, Leaf, Check, X } from "lucide-react"
 import Image from "next/image"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { useCart } from "@/lib/cart-context"
 import { toast } from "sonner"
 import type { Product } from "@/lib/db"
@@ -20,6 +24,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
   const [quantity, setQuantity] = useState(100)
   const [isBulk, setIsBulk] = useState(false)
   const [added, setAdded] = useState(false)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
   const { addItem } = useCart()
 
   // Auto-apply bulk pricing when quantity reaches bulk_min_qty
@@ -59,18 +64,18 @@ export function ProductCard({ product, index }: ProductCardProps) {
   return (
     <article
       className={cn(
-        "group relative flex min-h-[420px] flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow duration-300 hover:shadow-lg",
+        "group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow duration-300 hover:shadow-lg",
         !product.available && "opacity-60"
       )}
     >
-      {product.tag && (
+      {product.tag && product.tag !== "none" && (
         <div className="absolute right-3 top-3 z-10">
           <Badge
             className={cn(
               "text-xs font-semibold shadow-md backdrop-blur-sm",
-              product.tag === "Best Seller" && "bg-primary/90 text-white border-0",
-              product.tag === "Premium" && "bg-amber-600/90 text-white border-0",
-              product.tag === "New Arrival" && "bg-emerald-600/90 text-white border-0"
+              product.tag === "Best Seller" && "bg-sky-800/90 text-white border-0",
+              product.tag === "Premium" && "bg-indigo-800/90 text-white border-0",
+              product.tag === "New Arrival" && "bg-amber-950/90 text-white border-0"
             )}
           >
             {product.tag}
@@ -78,7 +83,22 @@ export function ProductCard({ product, index }: ProductCardProps) {
         </div>
       )}
 
-      <div className="relative flex h-40 items-center justify-center overflow-hidden bg-gradient-to-br from-primary/15 via-accent/40 to-emerald-200/30">
+      <div
+        className={cn(
+          "relative flex aspect-square items-center justify-center overflow-hidden bg-gradient-to-br from-primary/15 via-accent/40 to-emerald-200/30",
+          product.image_url && "cursor-pointer"
+        )}
+        onClick={() => product.image_url && setLightboxOpen(true)}
+        role={product.image_url ? "button" : undefined}
+        tabIndex={product.image_url ? 0 : undefined}
+        aria-label={product.image_url ? `View ${product.name} image` : undefined}
+        onKeyDown={(e) => {
+          if (product.image_url && (e.key === "Enter" || e.key === " ")) {
+            e.preventDefault()
+            setLightboxOpen(true)
+          }
+        }}
+      >
         {product.image_url ? (
           <Image
             src={product.image_url}
@@ -108,10 +128,11 @@ export function ProductCard({ product, index }: ProductCardProps) {
 
         <div className="mt-auto flex flex-col gap-3">
           {/* Pricing Toggle */}
-          <div className="flex items-center gap-2 rounded-lg bg-secondary p-1">
+          <div className="flex items-center gap-2 rounded-lg bg-secondary p-1" role="group" aria-label="Pricing mode">
             <button
               type="button"
               onClick={() => handleModeSwitch(false)}
+              aria-pressed={!isBulk}
               className={cn(
                 "flex-1 cursor-pointer rounded-md px-3 py-2 text-xs font-medium transition-all",
                 !isBulk
@@ -124,6 +145,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
             <button
               type="button"
               onClick={() => handleModeSwitch(true)}
+              aria-pressed={isBulk}
               className={cn(
                 "flex-1 cursor-pointer rounded-md px-3 py-2 text-xs font-medium transition-all",
                 isBulk
@@ -212,6 +234,33 @@ export function ProductCard({ product, index }: ProductCardProps) {
           </div>
         </div>
       </div>
+      {/* Image Lightbox */}
+      {product.image_url && (
+        <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
+          <DialogContent showCloseButton={false} className="max-w-[90vw] max-h-[90vh] p-0 border-0 bg-transparent shadow-none sm:max-w-[90vw]">
+            <DialogTitle className="sr-only">{product.name}</DialogTitle>
+            <div className="relative flex items-center justify-center">
+              <button
+                type="button"
+                onClick={() => setLightboxOpen(false)}
+                className="absolute -top-3 -right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-card text-card-foreground shadow-lg transition-colors hover:bg-secondary"
+                aria-label="Close image"
+              >
+                <X className="h-4 w-4" />
+              </button>
+              <Image
+                src={product.image_url}
+                alt={product.name}
+                width={800}
+                height={800}
+                className="max-h-[85vh] w-auto rounded-xl object-contain"
+                sizes="90vw"
+                priority
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </article>
   )
 }

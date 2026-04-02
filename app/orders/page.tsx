@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { Package, ChevronRight, X, Leaf, Loader2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -102,9 +103,9 @@ export default function OrdersPage() {
           <Package className="h-16 w-16 text-muted-foreground mb-4" />
           <h2 className="text-xl font-bold text-foreground">No orders yet</h2>
           <p className="text-muted-foreground mt-2">Start shopping to see your orders here</p>
-          <a href="/">
-            <Button className="mt-4">Browse Products</Button>
-          </a>
+          <Button className="mt-4" asChild>
+            <Link href="/shop">Browse Products</Link>
+          </Button>
         </div>
       </div>
     )
@@ -133,8 +134,9 @@ export default function OrdersPage() {
                   key={order.id}
                   type="button"
                   onClick={() => setSelectedOrder(order)}
+                  aria-current={selectedOrder?.id === order.id ? "true" : undefined}
                   className={cn(
-                    "flex w-full cursor-pointer items-center gap-4 rounded-xl border border-border bg-card p-4 text-left transition-all hover:shadow-md active:bg-accent/50",
+                    "flex w-full cursor-pointer items-center sm:items-start gap-4 rounded-xl border border-border bg-card p-4 text-left transition-all hover:shadow-md active:bg-accent/50",
                     selectedOrder?.id === order.id && "border-primary ring-1 ring-primary/20"
                   )}
                 >
@@ -143,7 +145,7 @@ export default function OrdersPage() {
                   </div>
 
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                       <span className="text-sm font-bold text-card-foreground">
                         {order.id.slice(0, 8).toUpperCase()}
                       </span>
@@ -251,7 +253,16 @@ export default function OrdersPage() {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-muted-foreground">Loading items...</p>
+                Array.from({ length: 2 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="h-10 w-10 animate-pulse rounded-lg bg-muted" />
+                    <div className="flex-1 space-y-1.5">
+                      <div className="h-4 w-24 animate-pulse rounded bg-muted" />
+                      <div className="h-3 w-32 animate-pulse rounded bg-muted" />
+                    </div>
+                    <div className="h-4 w-12 animate-pulse rounded bg-muted" />
+                  </div>
+                ))
               )}
             </div>
 

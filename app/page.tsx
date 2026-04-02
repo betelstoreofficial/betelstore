@@ -189,6 +189,7 @@ export default function LandingPage() {
                 href={getWhatsAppLink(settings.whatsapp)}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Get bulk quote on WhatsApp (opens in new tab)"
                 className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-sm font-semibold text-card-foreground transition-colors hover:bg-accent"
               >
                 Get Bulk Quote
@@ -356,10 +357,11 @@ export default function LandingPage() {
                 key={t.name}
                 className="rounded-xl border border-border bg-card p-6"
               >
-                <div className="mb-3 flex gap-0.5">
+                <div className="mb-3 flex gap-0.5" role="img" aria-label={`${t.stars} out of 5 stars`}>
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
+                      aria-hidden="true"
                       className={`h-4 w-4 ${
                         i < t.stars
                           ? "fill-yellow-400 text-yellow-400"
@@ -403,6 +405,7 @@ export default function LandingPage() {
               href={getWhatsAppLink(settings.whatsapp)}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Contact us on WhatsApp (opens in new tab)"
               className="inline-flex items-center gap-2 rounded-xl border border-primary-foreground/30 px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-foreground/10"
             >
               WhatsApp Us
@@ -457,16 +460,20 @@ export default function LandingPage() {
             <div>
               <h3 className="mb-4 text-sm font-semibold text-foreground">Contact</h3>
               <ul className="space-y-3">
-                <li className="flex items-start gap-2 text-sm text-muted-foreground">
-                  <Phone className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                  {settings.phone}
+                <li>
+                  <a href={`tel:${settings.phone.replace(/\s/g, '')}`} className="flex items-start gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
+                    <Phone className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                    {settings.phone}
+                  </a>
+                </li>
+                <li>
+                  <a href={`mailto:${settings.email}`} className="flex items-start gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
+                    <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                    {settings.email}
+                  </a>
                 </li>
                 <li className="flex items-start gap-2 text-sm text-muted-foreground">
-                  <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                  {settings.email}
-                </li>
-                <li className="flex items-start gap-2 text-sm text-muted-foreground">
-                  <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                  <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
                   {settings.address}
                 </li>
               </ul>

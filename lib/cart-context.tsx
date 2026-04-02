@@ -48,7 +48,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       const stored = localStorage.getItem(cartKey)
       if (stored) {
-        setItems(JSON.parse(stored))
+        const parsed: CartItem[] = JSON.parse(stored)
+        setItems(parsed.filter((i) => i.product && i.product.id && typeof i.product.price_per_100 === "number"))
       } else {
         // If user just logged in and has no saved cart, check if guest cart exists and migrate it
         if (user?.id) {

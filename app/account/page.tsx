@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import {
   User,
   Building2,
@@ -17,21 +18,91 @@ import {
   Settings,
   HelpCircle,
   Loader2,
+  Clock,
+  MessageCircle,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import { toast } from "sonner"
 import { useAuth } from "@/lib/auth-context"
+import { createClient } from "@/lib/supabase/client"
 import { getOrders, type Order } from "@/lib/db"
 
-const quickLinks = [
-  { href: "/orders", label: "Order History", icon: Package },
-  { href: "#", label: "Settings", icon: Settings },
-  { href: "#", label: "Help & Support", icon: HelpCircle },
+const DEFAULT_SETTINGS = {
+  phone: "+91 99999 99999",
+  email: "hello@betelwholesale.com",
+  whatsapp: "919999999999",
+  address: "Mumbai, Maharashtra, India",
+  business_hours_weekday: "Mon – Sat: 6 AM – 9 PM",
+  business_hours_weekend: "Sunday: 8 AM – 2 PM",
+}
+
+const faqs = [
+  {
+    question: "How do I place a bulk order?",
+    answer:
+      "Browse our shop, select your preferred betel leaf variety, choose the quantity, and switch to 'Bulk' pricing for orders above the minimum threshold. Add to cart and proceed to checkout. Bulk discounts are applied automatically.",
+  },
+  {
+    question: "What payment methods are accepted?",
+    answer:
+      "We accept all major payment methods through Razorpay — UPI, credit/debit cards, net banking, and popular wallets. All transactions are secured with industry-standard encryption.",
+  },
+  {
+    question: "How is pricing determined?",
+    answer:
+      "Our prices are based on real-time mandi (wholesale market) rates updated daily. You can view the current rates on our homepage and shop page. Bulk orders receive automatic tiered discounts.",
+  },
+  {
+    question: "What is the delivery timeline?",
+    answer:
+      "We dispatch orders same-day for orders placed before 2 PM. Delivery typically takes 1–3 days depending on your location. We deliver across 20+ cities in India with temperature-controlled packing.",
+  },
+  {
+    question: "Can I cancel or modify an order?",
+    answer:
+      "You can request cancellation while your order is in 'Processing' status by contacting our support team. Once an order is shipped, it cannot be cancelled. Modifications to quantity are not supported after order placement.",
+  },
+  {
+    question: "How do I contact support?",
+    answer:
+      "You can reach us via phone, email, or WhatsApp — all contact details are listed below. Our team is available during business hours and typically responds within 1 hour.",
+  },
 ]
 
 export default function AccountPage() {
-  const { user, loading: authLoading, signOut } = useAuth()
+  const { user, loading: authLoading, signOut, refreshUser } = useAuth()
   const [orders, setOrders] = useState<Order[]>([])
+
+  // Settings dialog state
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [profileForm, setProfileForm] = useState({
+    full_name: "",
+    business_name: "",
+    phone: "",
+    gst: "",
+    address: "",
+  })
+  const [savingProfile, setSavingProfile] = useState(false)
+
+  // Help dialog state
+  const [helpOpen, setHelpOpen] = useState(false)
+  const [siteSettings, setSiteSettings] = useState(DEFAULT_SETTINGS)
 
   useEffect(() => {
     async function loadOrders() {
@@ -42,6 +113,15 @@ export default function AccountPage() {
     }
     loadOrders()
   }, [user])
+
+  useEffect(() => {
+    fetch("/api/site-settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && !data.error) setSiteSettings(data)
+      })
+      .catch(() => {})
+  }, [])
 
   // Show loading while auth checks (middleware handles redirect)
   if (authLoading || !user) {
@@ -57,6 +137,44 @@ export default function AccountPage() {
     window.location.href = "/"
   }
 
+  function openSettings() {
+    if (!user) return
+    setProfileForm({
+      full_name: user.user_metadata?.full_name || "",
+      business_name: user.user_metadata?.business_name || "",
+      phone: user.user_metadata?.phone || "",
+      gst: user.user_metadata?.gst || "",
+      address: user.user_metadata?.address || "",
+    })
+    setSettingsOpen(true)
+  }
+
+  async function handleSaveProfile() {
+    setSavingProfile(true)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          full_name: profileForm.full_name,
+          business_name: profileForm.business_name,
+          phone: profileForm.phone,
+          gst: profileForm.gst,
+          address: profileForm.address,
+        },
+      })
+
+      if (error) throw error
+
+      await refreshUser()
+      toast.success("Profile updated")
+      setSettingsOpen(false)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update profile")
+    } finally {
+      setSavingProfile(false)
+    }
+  }
+
   const totalOrders = orders.length
   const totalSpent = orders.reduce((sum, o) => sum + (o.total || 0), 0)
 
@@ -68,6 +186,8 @@ export default function AccountPage() {
     { icon: MapPin, label: "Address", value: user.user_metadata?.address || "Not set" },
     { icon: Calendar, label: "Member Since", value: new Date(user.created_at).toLocaleDateString("en-IN", { month: "long", year: "numeric" }) },
   ]
+
+  const whatsappLink = `https://wa.me/${siteSettings.whatsapp}?text=Hi%2C%20I%20need%20help%20with%20my%20order`
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 md:py-10">
@@ -84,9 +204,9 @@ export default function AccountPage() {
         {/* Profile Card */}
         <div className="flex-1 rounded-xl border border-border bg-card">
           <div className="flex items-center gap-4 p-5">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground overflow-hidden">
               {user.user_metadata?.avatar_url ? (
-                <img src={user.user_metadata.avatar_url} alt="" className="h-14 w-14 rounded-2xl object-cover" />
+                <Image src={user.user_metadata.avatar_url} alt={user.user_metadata?.full_name || "Profile photo"} width={56} height={56} className="h-14 w-14 rounded-2xl object-cover" />
               ) : (
                 <User className="h-7 w-7" />
               )}
@@ -147,17 +267,32 @@ export default function AccountPage() {
           <div className="rounded-xl border border-border bg-card p-4">
             <h3 className="mb-3 text-sm font-semibold text-card-foreground">Quick Links</h3>
             <div className="flex flex-col gap-1">
-              {quickLinks.map((link) => (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-card-foreground transition-colors hover:bg-secondary"
-                >
-                  <link.icon className="h-4 w-4 text-muted-foreground" />
-                  <span className="flex-1">{link.label}</span>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </Link>
-              ))}
+              <Link
+                href="/orders"
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-card-foreground transition-colors hover:bg-secondary"
+              >
+                <Package className="h-4 w-4 text-muted-foreground" />
+                <span className="flex-1">Order History</span>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </Link>
+              <button
+                type="button"
+                onClick={openSettings}
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-card-foreground transition-colors hover:bg-secondary text-left"
+              >
+                <Settings className="h-4 w-4 text-muted-foreground" />
+                <span className="flex-1">Settings</span>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setHelpOpen(true)}
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-card-foreground transition-colors hover:bg-secondary text-left"
+              >
+                <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                <span className="flex-1">Help & Support</span>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </button>
             </div>
           </div>
 
@@ -171,6 +306,165 @@ export default function AccountPage() {
           </Button>
         </div>
       </div>
+
+      {/* Settings Dialog */}
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Edit Profile</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="full_name">Full Name</Label>
+              <Input
+                id="full_name"
+                value={profileForm.full_name}
+                onChange={(e) => setProfileForm({ ...profileForm, full_name: e.target.value })}
+              />
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid gap-2">
+                <Label htmlFor="business_name">Business Name</Label>
+                <Input
+                  id="business_name"
+                  value={profileForm.business_name}
+                  onChange={(e) => setProfileForm({ ...profileForm, business_name: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="profile_phone">Phone</Label>
+                <Input
+                  id="profile_phone"
+                  type="tel"
+                  value={profileForm.phone}
+                  onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid gap-2">
+                <Label htmlFor="gst">GST Number</Label>
+                <Input
+                  id="gst"
+                  value={profileForm.gst}
+                  onChange={(e) => setProfileForm({ ...profileForm, gst: e.target.value })}
+                  placeholder="e.g. 22AAAAA0000A1Z5"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="profile_address">Address</Label>
+                <Input
+                  id="profile_address"
+                  value={profileForm.address}
+                  onChange={(e) => setProfileForm({ ...profileForm, address: e.target.value })}
+                />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Email cannot be changed as it is linked to your Google account.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSettingsOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveProfile} disabled={savingProfile}>
+              {savingProfile ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Help & Support Dialog */}
+      <Dialog open={helpOpen} onOpenChange={setHelpOpen}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Help & Support</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-6 py-2">
+            {/* FAQs */}
+            <div>
+              <h3 className="mb-2 text-sm font-semibold text-foreground">Frequently Asked Questions</h3>
+              <Accordion type="single" collapsible className="w-full">
+                {faqs.map((faq, i) => (
+                  <AccordionItem key={i} value={`faq-${i}`}>
+                    <AccordionTrigger className="text-left text-sm">
+                      {faq.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground leading-relaxed">
+                      {faq.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </div>
+
+            <Separator />
+
+            {/* Contact Info */}
+            <div>
+              <h3 className="mb-3 text-sm font-semibold text-foreground">Contact Us</h3>
+              <div className="flex flex-col gap-3">
+                <a
+                  href={`tel:${siteSettings.phone.replace(/\s/g, "")}`}
+                  className="flex items-center gap-3 rounded-lg border border-border p-3 text-sm text-card-foreground transition-colors hover:bg-secondary"
+                >
+                  <Phone className="h-4 w-4 text-primary" />
+                  <div>
+                    <p className="font-medium">{siteSettings.phone}</p>
+                    <p className="text-xs text-muted-foreground">Call us</p>
+                  </div>
+                </a>
+                <a
+                  href={`mailto:${siteSettings.email}`}
+                  className="flex items-center gap-3 rounded-lg border border-border p-3 text-sm text-card-foreground transition-colors hover:bg-secondary"
+                >
+                  <Mail className="h-4 w-4 text-primary" />
+                  <div>
+                    <p className="font-medium">{siteSettings.email}</p>
+                    <p className="text-xs text-muted-foreground">Email us</p>
+                  </div>
+                </a>
+                <a
+                  href={whatsappLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 rounded-lg border border-border p-3 text-sm text-card-foreground transition-colors hover:bg-secondary"
+                >
+                  <MessageCircle className="h-4 w-4 text-primary" />
+                  <div>
+                    <p className="font-medium">WhatsApp</p>
+                    <p className="text-xs text-muted-foreground">Chat with us</p>
+                  </div>
+                </a>
+                <div className="flex items-start gap-3 rounded-lg border border-border p-3 text-sm">
+                  <MapPin className="mt-0.5 h-4 w-4 text-primary" />
+                  <div>
+                    <p className="font-medium text-card-foreground">{siteSettings.address}</p>
+                    <p className="text-xs text-muted-foreground">Our office</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 rounded-lg border border-border p-3 text-sm">
+                  <Clock className="mt-0.5 h-4 w-4 text-primary" />
+                  <div>
+                    <p className="font-medium text-card-foreground">{siteSettings.business_hours_weekday}</p>
+                    <p className="font-medium text-card-foreground">{siteSettings.business_hours_weekend}</p>
+                    <p className="text-xs text-muted-foreground">Business hours</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -16,6 +16,7 @@ interface MandiRate {
 export function DailyPriceTable() {
   const [rates, setRates] = useState<MandiRate[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     fetch("/api/mandi-rates")
@@ -23,7 +24,7 @@ export function DailyPriceTable() {
       .then((data) => {
         if (Array.isArray(data)) setRates(data)
       })
-      .catch(console.error)
+      .catch(() => setError(true))
       .finally(() => setLoading(false))
   }, [])
 
@@ -55,7 +56,13 @@ export function DailyPriceTable() {
             </tr>
           </thead>
           <tbody>
-            {loading ? (
+            {error ? (
+              <tr>
+                <td colSpan={4} className="py-8 text-center text-sm text-muted-foreground">
+                  Unable to load rates. Please refresh the page.
+                </td>
+              </tr>
+            ) : loading ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <tr key={i} className="border-b border-border/50 last:border-0">
                   <td className="py-3"><Skeleton className="h-4 w-24" /></td>
