@@ -47,9 +47,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const refreshUser = async () => {
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    setUser(user)
+    try {
+      const supabase = createClient()
+      const { data: { user }, error } = await supabase.auth.getUser()
+      if (!error) setUser(user)
+    } catch {
+      // Silently fail — keep current user state on network error
+    }
   }
 
   return (

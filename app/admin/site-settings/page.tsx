@@ -101,7 +101,7 @@ export default function AdminSiteSettingsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Site Settings</h2>
+          <h2 className="font-[family-name:var(--font-heading)] text-2xl font-bold">Site Settings</h2>
           <p className="text-sm text-muted-foreground">
             Manage contact details displayed on the landing page.
           </p>

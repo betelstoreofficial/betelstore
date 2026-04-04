@@ -21,6 +21,7 @@ import {
 import { useCart } from "@/lib/cart-context"
 import { useAuth } from "@/lib/auth-context"
 import { createOrder, verifyPayment } from "@/lib/db"
+import { proxyImageUrl } from "@/lib/utils"
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, clearCart, subtotal, discount, total } = useCart()
@@ -199,14 +200,14 @@ export default function CartPage() {
             return (
               <div
                 key={item.product.id}
-                className="mb-3 rounded-xl border border-border bg-card p-4"
+                className="mb-3 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/20"
               >
                 <div className="flex gap-4">
                   {/* Product Image */}
                   <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-accent/40">
                     {item.product.image_url ? (
                       <Image
-                        src={item.product.image_url}
+                        src={proxyImageUrl(item.product.image_url)!}
                         alt={item.product.name}
                         width={64}
                         height={64}
@@ -217,7 +218,7 @@ export default function CartPage() {
                     )}
                   </div>
 
-                  <div className="flex flex-1 flex-col gap-2">
+                  <div className="flex min-w-0 flex-1 flex-col gap-2">
                     <div className="flex items-start justify-between">
                       <div>
                         <h3 className="font-[family-name:var(--font-heading)] text-sm font-bold text-card-foreground">
@@ -237,36 +238,36 @@ export default function CartPage() {
                       </button>
                     </div>
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center gap-2">
                       <div className="flex items-center rounded-lg border border-border">
                         <button
                           type="button"
                           onClick={() => updateQuantity(item.product.id, Math.max(step, item.quantity - step))}
-                          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-l-lg text-muted-foreground transition-colors hover:bg-secondary active:bg-secondary"
+                          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-l-lg text-muted-foreground transition-all hover:bg-secondary active:bg-secondary active:scale-95"
                           aria-label="Decrease quantity"
                         >
-                          <Minus className="h-4 w-4" />
+                          <Minus className="h-3.5 w-3.5" />
                         </button>
-                        <span className="flex w-16 items-center justify-center text-sm font-semibold text-card-foreground tabular-nums">
+                        <span className="flex w-12 items-center justify-center text-sm font-semibold text-card-foreground tabular-nums">
                           {item.quantity.toLocaleString("en-IN")}
                         </span>
                         <button
                           type="button"
                           onClick={() => updateQuantity(item.product.id, item.quantity + step)}
-                          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-r-lg text-muted-foreground transition-colors hover:bg-secondary active:bg-secondary"
+                          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-r-lg text-muted-foreground transition-all hover:bg-secondary active:bg-secondary active:scale-95"
                           aria-label="Increase quantity"
                         >
-                          <Plus className="h-4 w-4" />
+                          <Plus className="h-3.5 w-3.5" />
                         </button>
                       </div>
-                      <span className="text-xs text-muted-foreground ml-1">leaves</span>
+                      <span className="text-xs text-muted-foreground">leaves</span>
 
-                      <div className="text-right ml-auto">
+                      <div className="ml-auto text-right">
                         <p className="text-sm font-bold text-card-foreground tabular-nums">
                           {"\u20B9"}{itemTotal.toLocaleString("en-IN")}
                         </p>
                         <p className="text-[11px] text-muted-foreground">
-                          {"\u20B9"}{effectivePrice.toLocaleString("en-IN")}/100 leaves
+                          {"\u20B9"}{effectivePrice.toLocaleString("en-IN")}/100
                         </p>
                       </div>
                     </div>
@@ -291,7 +292,7 @@ export default function CartPage() {
         </div>
 
         {/* Order Summary */}
-        <aside className="h-fit rounded-xl border border-border bg-card p-5 lg:w-80">
+        <aside className="h-fit rounded-xl border border-border bg-card p-5 shadow-sm lg:w-80">
           <h2 className="font-[family-name:var(--font-heading)] text-lg font-bold text-card-foreground">
             Order Summary
           </h2>
@@ -319,7 +320,7 @@ export default function CartPage() {
           </div>
 
           <Button
-            className="mt-5 w-full"
+            className="mt-5 w-full shadow-lg shadow-primary/20"
             size="lg"
             onClick={handlePlaceOrder}
             disabled={placing}

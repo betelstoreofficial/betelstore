@@ -28,8 +28,17 @@ const sidebarItems = [
   { href: "/admin/site-settings", label: "Settings", icon: Settings },
 ]
 
+const pageTitles: Record<string, string> = {
+  "/admin": "Dashboard",
+  "/admin/products": "Products",
+  "/admin/orders": "Orders",
+  "/admin/mandi-rates": "Mandi Rates",
+  "/admin/site-settings": "Settings",
+}
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const pageTitle = pageTitles[pathname] || "Admin Panel"
 
   return (
     <SidebarProvider>
@@ -40,7 +49,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Leaf className="h-4 w-4 text-primary-foreground" />
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-bold">Betel Admin</span>
+              <span className="font-[family-name:var(--font-heading)] text-sm font-bold">Betel Admin</span>
               <span className="text-[10px] text-muted-foreground">Management Panel</span>
             </div>
           </div>
@@ -87,7 +96,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <header className="flex h-14 items-center gap-2 border-b px-4">
           <SidebarTrigger />
           <Separator orientation="vertical" className="h-4" />
-          <h1 className="text-sm font-semibold">Admin Panel</h1>
+          <h1 className="font-[family-name:var(--font-heading)] text-sm font-semibold">{pageTitle}</h1>
         </header>
         <div className="flex-1 overflow-auto p-4 md:p-6">
           {children}

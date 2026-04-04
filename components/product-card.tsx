@@ -13,7 +13,7 @@ import {
 import { useCart } from "@/lib/cart-context"
 import { toast } from "sonner"
 import type { Product } from "@/lib/db"
-import { cn } from "@/lib/utils"
+import { cn, proxyImageUrl } from "@/lib/utils"
 
 interface ProductCardProps {
   product: Product
@@ -25,6 +25,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
   const [isBulk, setIsBulk] = useState(false)
   const [added, setAdded] = useState(false)
   const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [imageLoaded, setImageLoaded] = useState(false)
   const { addItem } = useCart()
 
   // Auto-apply bulk pricing when quantity reaches bulk_min_qty
@@ -64,7 +65,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
   return (
     <article
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow duration-300 hover:shadow-lg",
+        "group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)]",
         !product.available && "opacity-60"
       )}
     >
@@ -73,9 +74,9 @@ export function ProductCard({ product, index }: ProductCardProps) {
           <Badge
             className={cn(
               "text-xs font-semibold shadow-md backdrop-blur-sm",
-              product.tag === "Best Seller" && "bg-sky-800/90 text-white border-0",
-              product.tag === "Premium" && "bg-indigo-800/90 text-white border-0",
-              product.tag === "New Arrival" && "bg-amber-950/90 text-white border-0"
+              product.tag === "Best Seller" && "bg-primary/90 text-primary-foreground border-0",
+              product.tag === "Premium" && "bg-accent-foreground/90 text-accent border-0",
+              product.tag === "New Arrival" && "bg-warning text-warning-foreground border-0"
             )}
           >
             {product.tag}
@@ -101,11 +102,12 @@ export function ProductCard({ product, index }: ProductCardProps) {
       >
         {product.image_url ? (
           <Image
-            src={product.image_url}
+            src={proxyImageUrl(product.image_url)!}
             alt={product.name}
             fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            className="object-cover transition-all duration-300 group-hover:scale-105 group-hover:brightness-[1.02]"
             sizes="(max-width: 768px) 50vw, 33vw"
+            priority={index < 4}
           />
         ) : (
           <Leaf className="h-16 w-16 text-primary/40" />
@@ -236,26 +238,35 @@ export function ProductCard({ product, index }: ProductCardProps) {
       </div>
       {/* Image Lightbox */}
       {product.image_url && (
-        <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-          <DialogContent showCloseButton={false} className="max-w-[90vw] max-h-[90vh] p-0 border-0 bg-transparent shadow-none sm:max-w-[90vw]">
+        <Dialog open={lightboxOpen} onOpenChange={(open) => { setLightboxOpen(open); if (!open) setImageLoaded(false) }}>
+          <DialogContent showCloseButton={false} aria-describedby={undefined} className="max-w-[90vw] max-h-[90vh] p-0 border-0 bg-transparent shadow-none sm:max-w-[90vw] data-[state=open]:animate-none data-[state=closed]:animate-none">
             <DialogTitle className="sr-only">{product.name}</DialogTitle>
             <div className="relative flex items-center justify-center">
               <button
                 type="button"
                 onClick={() => setLightboxOpen(false)}
-                className="absolute -top-3 -right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-card text-card-foreground shadow-lg transition-colors hover:bg-secondary"
+                className={cn(
+                  "absolute -top-3 -right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-card text-card-foreground shadow-lg transition-colors hover:bg-secondary",
+                  !imageLoaded && "hidden"
+                )}
                 aria-label="Close image"
               >
                 <X className="h-4 w-4" />
               </button>
-              <Image
-                src={product.image_url}
+              {!imageLoaded && (
+                <div className="flex h-48 w-48 items-center justify-center">
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-foreground" />
+                </div>
+              )}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={proxyImageUrl(product.image_url)!}
                 alt={product.name}
-                width={800}
-                height={800}
-                className="max-h-[85vh] w-auto rounded-xl object-contain"
-                sizes="90vw"
-                priority
+                className={cn(
+                  "max-h-[85vh] w-auto rounded-xl object-contain transition-opacity duration-200",
+                  imageLoaded ? "opacity-100" : "opacity-0 absolute"
+                )}
+                onLoad={() => setImageLoaded(true)}
               />
             </div>
           </DialogContent>

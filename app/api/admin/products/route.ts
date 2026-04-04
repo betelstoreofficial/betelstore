@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin } from '@/lib/admin-api'
 import { createAdminClient } from '@/lib/supabase/admin'
 
+
 export async function GET() {
   try {
     const auth = await verifyAdmin()
@@ -15,16 +16,13 @@ export async function GET() {
 
     if (error) {
       console.error('[admin/products] GET query error:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to load products' }, { status: 500 })
     }
 
     return NextResponse.json(data)
   } catch (err) {
     console.error('[admin/products] GET unhandled error:', err)
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -57,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('[admin/products] POST error:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to create product' }, { status: 500 })
     }
 
     // Auto-create mandi rate entry for this product
@@ -79,10 +77,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(data, { status: 201 })
   } catch (err) {
     console.error('[admin/products] POST unhandled error:', err)
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -112,6 +107,10 @@ export async function PUT(request: NextRequest) {
     if ('tag' in body) updates.tag = body.tag || null
     if ('image_url' in body) updates.image_url = body.image_url || null
 
+    if (Object.keys(updates).length === 0) {
+      return NextResponse.json({ error: 'No fields to update' }, { status: 400 })
+    }
+
     const { data, error } = await supabase
       .from('products')
       .update(updates)
@@ -121,11 +120,11 @@ export async function PUT(request: NextRequest) {
 
     if (error) {
       console.error('[admin/products] PUT error:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to update product' }, { status: 500 })
     }
 
-    // Auto-sync mandi rate with product changes (name + price)
-    if (data) {
+    // Auto-sync mandi rate only when name or price actually changed
+    if (data && ('name' in updates || 'price_per_100' in updates)) {
       await supabase
         .from('mandi_rates')
         .update({
@@ -141,10 +140,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(data)
   } catch (err) {
     console.error('[admin/products] PUT unhandled error:', err)
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -169,15 +165,12 @@ export async function DELETE(request: NextRequest) {
 
     if (error) {
       console.error('[admin/products] DELETE error:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to delete product' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('[admin/products] DELETE unhandled error:', err)
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

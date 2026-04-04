@@ -23,7 +23,7 @@ export function TopNav() {
   return (
     <>
     {/* Mobile Header */}
-    <header className="fixed inset-x-0 top-0 z-50 flex h-14 items-center justify-between border-b border-border bg-background px-4 md:hidden">
+    <header className="fixed inset-x-0 top-0 z-50 flex h-14 items-center justify-between border-b border-border bg-background/80 backdrop-blur-lg px-4 md:hidden">
       <Link href="/" className="flex items-center gap-2">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
           <Leaf className="h-4 w-4 text-primary-foreground" />
@@ -57,7 +57,7 @@ export function TopNav() {
     </header>
 
     {/* Desktop Header */}
-    <header className="fixed inset-x-0 top-0 z-50 hidden h-16 border-b border-border bg-background md:block">
+    <header className="fixed inset-x-0 top-0 z-50 hidden h-16 border-b border-border bg-background/80 backdrop-blur-lg md:block">
       <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
@@ -87,6 +87,9 @@ export function TopNav() {
                   <span className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground tabular-nums">
                     {totalItems}
                   </span>
+                )}
+                {isActive && (
+                  <span className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-primary" />
                 )}
               </Link>
             )

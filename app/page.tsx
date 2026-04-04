@@ -154,7 +154,11 @@ export default function LandingPage() {
     <div className="flex flex-col">
       {/* ─── SECTION 1: HERO ─── */}
       <section className="relative overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/25 via-emerald-100/40 to-background dark:from-primary/15 dark:via-emerald-950/30 dark:to-background">
-        <div className="mx-auto max-w-6xl px-4 py-16 md:py-24 lg:py-32">
+        {/* Decorative blob */}
+        <svg className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] opacity-30" viewBox="0 0 600 600" aria-hidden="true">
+          <path d="M300 50C420 50 550 150 550 300C550 450 420 550 300 550C180 550 50 450 50 300C50 150 180 50 300 50Z" fill="var(--primary)" fillOpacity="0.1" />
+        </svg>
+        <div className="relative mx-auto max-w-6xl px-4 py-16 md:py-24 lg:py-32">
           <div className="flex flex-col items-center text-center">
             {/* Badge */}
             <span className="mb-6 inline-flex animate-in fade-in slide-in-from-top-4 items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-semibold text-primary duration-500">
@@ -221,7 +225,7 @@ export default function LandingPage() {
               {stats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-6 text-center transition-all hover:shadow-md hover:border-primary/30"
+                  className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-6 text-center transition-all hover:shadow-md hover:border-primary/30 hover:scale-[1.02]"
                 >
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
                     <stat.icon className="h-5 w-5 text-primary" />
@@ -258,7 +262,15 @@ export default function LandingPage() {
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-80 animate-pulse rounded-xl bg-muted" />
+              <div key={i} className="animate-pulse rounded-xl border border-border bg-card overflow-hidden">
+                <div className="aspect-square bg-muted" />
+                <div className="p-4 space-y-3">
+                  <div className="h-4 w-2/3 rounded bg-muted" />
+                  <div className="h-3 w-1/2 rounded bg-muted" />
+                  <div className="h-8 rounded bg-muted" />
+                  <div className="h-10 rounded bg-muted" />
+                </div>
+              </div>
             ))}
           </div>
         )}
@@ -291,8 +303,8 @@ export default function LandingPage() {
             {usps.map((usp, i) => (
               <div
                 key={usp.title}
-                className="group rounded-xl border border-border bg-card p-6 transition-all hover:shadow-md hover:border-primary/30"
-                style={{ animationDelay: `${i * 100}ms` }}
+                className="group animate-in fade-in slide-in-from-bottom-4 rounded-xl border border-border bg-card p-6 transition-all hover:shadow-md hover:border-primary/30 duration-500"
+                style={{ animationDelay: `${i * 100}ms`, animationFillMode: "backwards" }}
               >
                 <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary/15 to-emerald-400/15 transition-transform group-hover:scale-110">
                   <usp.icon className="h-5 w-5 text-primary" />
@@ -355,8 +367,9 @@ export default function LandingPage() {
             {testimonials.map((t) => (
               <div
                 key={t.name}
-                className="rounded-xl border border-border bg-card p-6"
+                className="relative overflow-hidden rounded-xl border border-border bg-card p-6"
               >
+                <span className="pointer-events-none absolute -top-4 -left-2 font-[family-name:var(--font-heading)] text-8xl font-bold text-primary/5 select-none" aria-hidden="true">&ldquo;</span>
                 <div className="mb-3 flex gap-0.5" role="img" aria-label={`${t.stars} out of 5 stars`}>
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
@@ -384,8 +397,9 @@ export default function LandingPage() {
       </section>
 
       {/* ─── SECTION 7: CTA BANNER ─── */}
-      <section className="bg-gradient-to-r from-primary via-emerald-600 to-teal-600">
-        <div className="mx-auto max-w-6xl px-4 py-12 text-center md:py-16">
+      <section className="relative overflow-hidden bg-gradient-to-r from-primary via-emerald-600 to-teal-600">
+        <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }} aria-hidden="true" />
+        <div className="relative mx-auto max-w-6xl px-4 py-12 text-center md:py-16">
           <h2 className="mb-4 font-[family-name:var(--font-heading)] text-2xl font-bold text-primary-foreground md:text-3xl">
             Start Sourcing Premium Betel Leaves Today
           </h2>
@@ -439,6 +453,7 @@ export default function LandingPage() {
               <h3 className="mb-4 text-sm font-semibold text-foreground">Quick Links</h3>
               <ul className="space-y-2">
                 {[
+                  { href: "/", label: "Home" },
                   { href: "/shop", label: "Shop All" },
                   { href: "/cart", label: "Cart" },
                   { href: "/orders", label: "My Orders" },

@@ -44,6 +44,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
+import { proxyImageUrl } from "@/lib/utils"
 
 interface Product {
   id: string
@@ -242,7 +243,7 @@ export default function AdminProductsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Products</h2>
+        <h2 className="font-[family-name:var(--font-heading)] text-2xl font-bold">Products</h2>
         <Button onClick={openCreate} size="sm">
           <Plus className="mr-1 h-4 w-4" />
           Add Product
@@ -281,11 +282,11 @@ export default function AdminProductsPage() {
               </TableRow>
             ) : (
               products.map((product) => (
-                <TableRow key={product.id}>
+                <TableRow key={product.id} className="transition-colors hover:bg-accent/50">
                   <TableCell>
                     {product.image_url ? (
                       <Image
-                        src={product.image_url}
+                        src={proxyImageUrl(product.image_url)!}
                         alt={product.name}
                         width={40}
                         height={40}
@@ -300,8 +301,8 @@ export default function AdminProductsPage() {
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell className="hidden sm:table-cell">{product.origin}</TableCell>
                   <TableCell className="hidden md:table-cell">{product.grade}</TableCell>
-                  <TableCell className="text-right">{"\u20B9"}{product.price_per_100}</TableCell>
-                  <TableCell className="hidden lg:table-cell text-right">{"\u20B9"}{product.bulk_price_per_1000}</TableCell>
+                  <TableCell className="text-right tabular-nums">{"\u20B9"}{product.price_per_100}</TableCell>
+                  <TableCell className="hidden lg:table-cell text-right tabular-nums">{"\u20B9"}{product.bulk_price_per_1000}</TableCell>
                   <TableCell className="text-center">
                     <Switch
                       checked={product.available}

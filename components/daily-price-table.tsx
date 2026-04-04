@@ -75,7 +75,7 @@ export function DailyPriceTable() {
               rates.map((row) => (
                 <tr
                   key={row.variety}
-                  className="border-b border-border/50 last:border-0"
+                  className="border-b border-border/50 last:border-0 transition-colors hover:bg-accent/50"
                 >
                   <td className="py-3 font-medium text-card-foreground">{row.variety}</td>
                   <td className="py-3 text-right font-semibold text-card-foreground">

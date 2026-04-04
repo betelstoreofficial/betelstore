@@ -103,7 +103,7 @@ function LoginForm() {
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-4">
-      <Card className="w-full max-w-sm border-border bg-card">
+      <Card className="w-full max-w-sm border-border bg-card shadow-lg">
         <CardHeader className="text-center">
           <div className="flex items-center justify-between mb-4">
             <button
@@ -138,7 +138,7 @@ function LoginForm() {
           <Button
             onClick={handleGoogleLogin}
             disabled={isLoading}
-            className="w-full gap-3 bg-card text-card-foreground border border-border hover:bg-accent"
+            className="w-full gap-3 bg-card text-card-foreground border border-border hover:bg-accent active:scale-[0.98] transition-transform"
             size="lg"
           >
             {isLoading ? (

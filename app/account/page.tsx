@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import {
   User,
   Building2,
@@ -189,6 +188,17 @@ export default function AccountPage() {
 
   const whatsappLink = `https://wa.me/${siteSettings.whatsapp}?text=Hi%2C%20I%20need%20help%20with%20my%20order`
 
+  const incompleteFields = profileFields.filter(
+    (f) => f.value === "Not set" && f.label !== "Member Since"
+  ).length
+
+  const formatSpent = (amount: number) => {
+    if (amount === 0) return "0"
+    if (amount >= 100000) return `${(amount / 100000).toFixed(1)}L`
+    if (amount >= 1000) return `${(amount / 1000).toFixed(0)}K`
+    return amount.toLocaleString("en-IN")
+  }
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 md:py-10">
       <div className="mb-6">
@@ -202,28 +212,49 @@ export default function AccountPage() {
 
       <div className="flex flex-col gap-6 lg:flex-row">
         {/* Profile Card */}
-        <div className="flex-1 rounded-xl border border-border bg-card">
+        <div className="flex-1 rounded-xl border border-border bg-card shadow-sm">
           <div className="flex items-center gap-4 p-5">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground overflow-hidden">
               {user.user_metadata?.avatar_url ? (
-                <Image src={user.user_metadata.avatar_url} alt={user.user_metadata?.full_name || "Profile photo"} width={56} height={56} className="h-14 w-14 rounded-2xl object-cover" />
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={user.user_metadata.avatar_url} alt={user.user_metadata?.full_name || "Profile photo"} width={56} height={56} className="h-14 w-14 rounded-2xl object-cover" />
               ) : (
                 <User className="h-7 w-7" />
               )}
             </div>
-            <div>
+            <div className="flex-1">
               <h2 className="font-[family-name:var(--font-heading)] text-lg font-bold text-card-foreground">
                 {user.user_metadata?.full_name || user.email?.split("@")[0]}
               </h2>
               <p className="text-sm text-muted-foreground">{user.email}</p>
             </div>
+            <button
+              type="button"
+              onClick={openSettings}
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary active:bg-accent/50"
+              aria-label="Edit profile"
+            >
+              <Settings className="h-4 w-4" />
+            </button>
           </div>
+
+          {incompleteFields > 0 && (
+            <button
+              type="button"
+              onClick={openSettings}
+              className="mx-5 mb-4 flex w-[calc(100%-2.5rem)] items-center gap-2 rounded-lg bg-warning/10 px-3 py-2 text-left text-xs font-medium text-warning-foreground transition-colors hover:bg-warning/15"
+            >
+              <Settings className="h-3.5 w-3.5 flex-shrink-0" />
+              Complete your profile — {incompleteFields} {incompleteFields === 1 ? "field" : "fields"} remaining
+              <ChevronRight className="ml-auto h-3.5 w-3.5" />
+            </button>
+          )}
 
           <Separator />
 
           <div className="flex">
             <div className="flex flex-1 flex-col items-center gap-1 py-5">
-              <div className="flex items-center gap-1 text-xl font-bold text-card-foreground">
+              <div className="flex items-center gap-1 text-xl font-bold text-card-foreground tabular-nums">
                 <Package className="h-5 w-5 text-primary" />
                 {totalOrders}
               </div>
@@ -231,9 +262,9 @@ export default function AccountPage() {
             </div>
             <Separator orientation="vertical" className="h-auto" />
             <div className="flex flex-1 flex-col items-center gap-1 py-5">
-              <div className="flex items-center gap-1 text-xl font-bold text-card-foreground">
+              <div className="flex items-center gap-1 text-xl font-bold text-card-foreground tabular-nums">
                 <IndianRupee className="h-5 w-5 text-primary" />
-                {(totalSpent / 1000).toFixed(0)}K
+                {formatSpent(totalSpent)}
               </div>
               <span className="text-xs text-muted-foreground">Total Spent</span>
             </div>
@@ -243,10 +274,9 @@ export default function AccountPage() {
 
           <div className="p-5">
             <div className="flex flex-col gap-4">
-              {profileFields.map((field, i) => (
+              {profileFields.map((field) => (
                 <div
                   key={field.label}
-                  style={{ animationDelay: `${100 + i * 50}ms` }}
                   className="flex items-start gap-3"
                 >
                   <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-secondary">
@@ -254,7 +284,9 @@ export default function AccountPage() {
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">{field.label}</p>
-                    <p className="text-sm font-medium text-card-foreground">{field.value}</p>
+                    <p className={`text-sm font-medium ${field.value === "Not set" ? "text-muted-foreground/60 italic" : "text-card-foreground"}`}>
+                      {field.value}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -269,27 +301,27 @@ export default function AccountPage() {
             <div className="flex flex-col gap-1">
               <Link
                 href="/orders"
-                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-card-foreground transition-colors hover:bg-secondary"
+                className="group/link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-card-foreground transition-colors hover:bg-secondary active:bg-accent/50"
               >
-                <Package className="h-4 w-4 text-muted-foreground" />
+                <Package className="h-4 w-4 text-muted-foreground transition-colors group-hover/link:text-primary" />
                 <span className="flex-1">Order History</span>
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </Link>
               <button
                 type="button"
                 onClick={openSettings}
-                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-card-foreground transition-colors hover:bg-secondary text-left"
+                className="group/link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-card-foreground transition-colors hover:bg-secondary active:bg-accent/50 text-left"
               >
-                <Settings className="h-4 w-4 text-muted-foreground" />
-                <span className="flex-1">Settings</span>
+                <Settings className="h-4 w-4 text-muted-foreground transition-colors group-hover/link:text-primary" />
+                <span className="flex-1">Edit Profile</span>
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </button>
               <button
                 type="button"
                 onClick={() => setHelpOpen(true)}
-                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-card-foreground transition-colors hover:bg-secondary text-left"
+                className="group/link flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-card-foreground transition-colors hover:bg-secondary active:bg-accent/50 text-left"
               >
-                <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                <HelpCircle className="h-4 w-4 text-muted-foreground transition-colors group-hover/link:text-primary" />
                 <span className="flex-1">Help & Support</span>
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </button>
@@ -309,7 +341,7 @@ export default function AccountPage() {
 
       {/* Settings Dialog */}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg" aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle>Edit Profile</DialogTitle>
           </DialogHeader>
@@ -318,6 +350,7 @@ export default function AccountPage() {
               <Label htmlFor="full_name">Full Name</Label>
               <Input
                 id="full_name"
+                autoComplete="name"
                 value={profileForm.full_name}
                 onChange={(e) => setProfileForm({ ...profileForm, full_name: e.target.value })}
               />
@@ -327,6 +360,7 @@ export default function AccountPage() {
                 <Label htmlFor="business_name">Business Name</Label>
                 <Input
                   id="business_name"
+                  autoComplete="organization"
                   value={profileForm.business_name}
                   onChange={(e) => setProfileForm({ ...profileForm, business_name: e.target.value })}
                 />
@@ -336,6 +370,7 @@ export default function AccountPage() {
                 <Input
                   id="profile_phone"
                   type="tel"
+                  autoComplete="tel"
                   value={profileForm.phone}
                   onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
                 />
@@ -346,6 +381,7 @@ export default function AccountPage() {
                 <Label htmlFor="gst">GST Number</Label>
                 <Input
                   id="gst"
+                  autoComplete="off"
                   value={profileForm.gst}
                   onChange={(e) => setProfileForm({ ...profileForm, gst: e.target.value })}
                   placeholder="e.g. 22AAAAA0000A1Z5"
@@ -355,6 +391,7 @@ export default function AccountPage() {
                 <Label htmlFor="profile_address">Address</Label>
                 <Input
                   id="profile_address"
+                  autoComplete="street-address"
                   value={profileForm.address}
                   onChange={(e) => setProfileForm({ ...profileForm, address: e.target.value })}
                 />
@@ -384,7 +421,7 @@ export default function AccountPage() {
 
       {/* Help & Support Dialog */}
       <Dialog open={helpOpen} onOpenChange={setHelpOpen}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg" aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle>Help & Support</DialogTitle>
           </DialogHeader>

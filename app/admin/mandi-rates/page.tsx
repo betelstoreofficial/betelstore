@@ -93,7 +93,7 @@ export default function AdminMandiRatesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Mandi Rates</h2>
+          <h2 className="font-[family-name:var(--font-heading)] text-2xl font-bold">Mandi Rates</h2>
           <p className="text-sm text-muted-foreground">
             Update today&apos;s prices. Yesterday&apos;s price will be set automatically.
           </p>
@@ -135,12 +135,12 @@ export default function AdminMandiRatesPage() {
                 const preview = getPreviewChange(rate)
                 const isChanged = rate.new_today_price !== rate.today_price
                 return (
-                  <TableRow key={rate.id} className={isChanged ? "bg-yellow-50/50" : ""}>
+                  <TableRow key={rate.id} className={cn("transition-colors hover:bg-accent/50", isChanged && "bg-yellow-50/50")}>
                     <TableCell className="font-medium">{rate.variety}</TableCell>
-                    <TableCell className="text-right text-muted-foreground">
+                    <TableCell className="text-right text-muted-foreground tabular-nums">
                       {"\u20B9"}{rate.yesterday_price.toLocaleString("en-IN")}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right tabular-nums">
                       {"\u20B9"}{rate.today_price.toLocaleString("en-IN")}
                     </TableCell>
                     <TableCell className="text-right">

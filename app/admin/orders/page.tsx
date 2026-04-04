@@ -139,7 +139,7 @@ export default function AdminOrdersPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Orders</h2>
+        <h2 className="font-[family-name:var(--font-heading)] text-2xl font-bold">Orders</h2>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-40">
             <SelectValue placeholder="Filter status" />
@@ -185,7 +185,7 @@ export default function AdminOrdersPage() {
               orders.map((order) => (
                 <TableRow
                   key={order.id}
-                  className="cursor-pointer hover:bg-muted/50"
+                  className="cursor-pointer transition-colors hover:bg-accent/50"
                   onClick={() => openDetail(order)}
                 >
                   <TableCell className="font-medium font-mono text-xs">
@@ -201,7 +201,7 @@ export default function AdminOrdersPage() {
                       year: "numeric",
                     })}
                   </TableCell>
-                  <TableCell className="text-right font-medium">
+                  <TableCell className="text-right font-medium tabular-nums">
                     {"\u20B9"}{order.total?.toLocaleString("en-IN")}
                   </TableCell>
                   <TableCell>

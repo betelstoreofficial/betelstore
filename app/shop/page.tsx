@@ -47,7 +47,7 @@ export default function ShopPage() {
             {features.map((f) => (
               <div
                 key={f.label}
-                className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2"
+                className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 transition-colors hover:border-primary/30"
               >
                 <f.icon className="h-4 w-4 text-primary" />
                 <span className="text-xs font-medium text-card-foreground">{f.label}</span>
@@ -74,7 +74,15 @@ export default function ShopPage() {
         {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-[420px] animate-pulse rounded-xl bg-muted" />
+              <div key={i} className="animate-pulse rounded-xl border border-border bg-card overflow-hidden">
+                <div className="aspect-square bg-muted" />
+                <div className="p-4 space-y-3">
+                  <div className="h-4 w-2/3 rounded bg-muted" />
+                  <div className="h-3 w-1/2 rounded bg-muted" />
+                  <div className="h-8 rounded bg-muted" />
+                  <div className="h-10 rounded bg-muted" />
+                </div>
+              </div>
             ))}
           </div>
         ) : (

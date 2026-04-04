@@ -55,9 +55,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
         if (user?.id) {
           const guestCart = localStorage.getItem(getCartKey(null))
           if (guestCart) {
-            const guestItems = JSON.parse(guestCart)
-            if (guestItems.length > 0) {
-              setItems(guestItems)
+            const guestItems: CartItem[] = JSON.parse(guestCart)
+            const validItems = guestItems.filter((i) => i.product && i.product.id && typeof i.product.price_per_100 === "number")
+            if (validItems.length > 0) {
+              setItems(validItems)
               localStorage.removeItem(getCartKey(null))
             }
           }

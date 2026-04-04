@@ -33,21 +33,23 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Dashboard</h2>
+      <h2 className="font-[family-name:var(--font-heading)] text-2xl font-bold">Dashboard</h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map((card) => (
-          <Card key={card.key}>
+          <Card key={card.key} className="transition-all hover:shadow-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 {card.label}
               </CardTitle>
-              <card.icon className="h-4 w-4 text-muted-foreground" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                <card.icon className="h-4 w-4 text-primary" />
+              </div>
             </CardHeader>
             <CardContent>
               {loading ? (
                 <Skeleton className="h-8 w-24" />
               ) : (
-                <p className="text-2xl font-bold">
+                <p className="font-[family-name:var(--font-heading)] text-2xl font-bold tabular-nums">
                   {stats ? card.format(stats[card.key]) : "—"}
                 </p>
               )}

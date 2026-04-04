@@ -12,7 +12,7 @@ export function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       global: {
-        fetch: (input, init) => {
+        fetch: (input: RequestInfo | URL, init?: RequestInit) => {
           // Proxy Supabase requests through our domain to avoid ISP blocks
           if (typeof window !== 'undefined' && typeof input === 'string' && input.startsWith(supabaseUrl)) {
             const path = input.slice(supabaseUrl.length)

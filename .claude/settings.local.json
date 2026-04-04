@@ -5,7 +5,10 @@
       "Bash(node:*)",
       "Bash(npx tsc:*)",
       "Bash(supabase:*)",
-      "Bash(npx next:*)"
+      "Bash(npx next:*)",
+      "Bash(python:*)",
+      "Bash(wc:*)",
+      "Bash(find:*)"
     ]
   }
 }

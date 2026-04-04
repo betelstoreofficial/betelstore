@@ -27,7 +27,7 @@ export function BottomNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/80 backdrop-blur-lg pb-[env(safe-area-inset-bottom)] md:hidden"
       aria-label="Mobile navigation"
     >
       <div className="mx-auto flex h-16 max-w-md items-center justify-around">
@@ -50,6 +50,9 @@ export function BottomNav() {
                 )}
               </div>
               <span>{tab.label}</span>
+              {isActive && (
+                <span className="absolute -bottom-0.5 h-1 w-1 rounded-full bg-primary" />
+              )}
             </Link>
           )
         })}
