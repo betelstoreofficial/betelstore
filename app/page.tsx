@@ -25,6 +25,7 @@ import {
 import { DailyPriceTable } from "@/components/daily-price-table"
 import { ProductCard } from "@/components/product-card"
 import { getProducts, type Product } from "@/lib/db"
+import TbsLogo from "@/images/tbslogo"
 
 const DEFAULT_SETTINGS = {
   phone: "+91 99999 99999",
@@ -435,12 +436,7 @@ export default function LandingPage() {
             {/* Brand */}
             <div>
               <div className="mb-4 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                  <Leaf className="h-4 w-4 text-primary-foreground" />
-                </div>
-                <span className="font-[family-name:var(--font-heading)] text-lg font-bold text-foreground">
-                  Betel Wholesale
-                </span>
+                <TbsLogo size="h-15" />
               </div>
               <p className="text-sm leading-relaxed text-muted-foreground">
                 India&apos;s trusted B2B marketplace for premium betel leaves.

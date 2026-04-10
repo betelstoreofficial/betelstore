@@ -19,6 +19,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
+import TbsLogo from "@/images/tbslogo"
 
 const sidebarItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -45,11 +46,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <Sidebar>
         <SidebarHeader>
           <div className="flex items-center gap-2 px-2 py-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <Leaf className="h-4 w-4 text-primary-foreground" />
-            </div>
             <div className="flex flex-col">
-              <span className="font-[family-name:var(--font-heading)] text-sm font-bold">Betel Admin</span>
+              <TbsLogo size="h-12" />
               <span className="text-[10px] text-muted-foreground">Management Panel</span>
             </div>
           </div>
