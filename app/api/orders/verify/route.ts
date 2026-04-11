@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createHmac } from 'crypto'
 import { createClient } from '@/lib/supabase/server'
-import { sendPaymentSuccessToUser } from '@/lib/email'
+import { sendPaymentSuccessToUser, sendOrderConfirmationToUser, sendNewOrderAlertToAdmin } from '@/lib/email'
 import { rateLimit } from '@/lib/rate-limit'
 
 interface VerifyBody {
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
         .single()
 
       if (order) {
-        sendPaymentSuccessToUser({
+        const emailData = {
           orderId: order.id,
           orderNumber: order.order_number,
           items: order.items as { product_name: string; quantity: number; price_per_unit: number; is_bulk: boolean }[],
@@ -73,7 +73,11 @@ export async function POST(request: Request) {
           total: order.total,
           userEmail: user.email!,
           userName: user.user_metadata?.full_name || user.user_metadata?.name,
-        }).catch(err => console.error('Failed to send payment success email:', err))
+        }
+
+        sendPaymentSuccessToUser(emailData).catch(err => console.error('Failed to send payment success email:', err))
+        sendOrderConfirmationToUser(emailData).catch(err => console.error('Failed to send order confirmation email:', err))
+        sendNewOrderAlertToAdmin(emailData).catch(err => console.error('Failed to send admin alert email:', err))
       }
 
       return NextResponse.json({ verified: true })

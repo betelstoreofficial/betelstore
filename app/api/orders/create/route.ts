@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getRazorpay } from '@/lib/razorpay'
-import { sendOrderConfirmationToUser, sendNewOrderAlertToAdmin } from '@/lib/email'
 import { rateLimit } from '@/lib/rate-limit'
 
 interface OrderItemInput {
@@ -172,21 +171,6 @@ export async function POST(request: Request) {
       .from('orders')
       .update({ razorpay_order_id: razorpayOrder.id })
       .eq('id', order.id)
-
-    // Send email notifications (non-blocking)
-    const emailData = {
-      orderId: order.id,
-      orderNumber: order.order_number,
-      items: itemsJson,
-      subtotal: Math.round(serverSubtotal),
-      discount: Math.round(serverDiscount),
-      total: Math.round(serverTotal),
-      userEmail: user.email!,
-      userName: user.user_metadata?.full_name || user.user_metadata?.name,
-    }
-
-    sendOrderConfirmationToUser(emailData).catch(err => console.error('Failed to send order confirmation email:', err))
-    sendNewOrderAlertToAdmin(emailData).catch(err => console.error('Failed to send admin alert email:', err))
 
     return NextResponse.json({
       orderId: order.id,

@@ -28,3 +28,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude
+.claude/
+CLAUDE.md
+
+# local reference (not part of app)
+docs/
+scripts/
+migrations/
+
+# graphify
+graphify-out/
+.graphify_python

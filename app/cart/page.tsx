@@ -22,12 +22,14 @@ import { useCart } from "@/lib/cart-context"
 import { useAuth } from "@/lib/auth-context"
 import { createOrder, verifyPayment } from "@/lib/db"
 import { proxyImageUrl } from "@/lib/utils"
+import { getDeliveryInfo } from "@/lib/delivery"
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, clearCart, subtotal, discount, total } = useCart()
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [placing, setPlacing] = useState(false)
+  const delivery = getDeliveryInfo()
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
 
@@ -117,10 +119,23 @@ export default function CartPage() {
           }
         },
         modal: {
-          ondismiss: () => {
+          ondismiss: async () => {
             setPlacing(false)
+            // Cancel the pending order since payment was not completed
+            try {
+              await fetch("/api/orders/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  orderId,
+                  razorpay_order_id: razorpayOrderId,
+                  razorpay_payment_id: "",
+                  razorpay_signature: "",
+                }),
+              })
+            } catch {}
             toast.info("Payment cancelled", {
-              description: "Your order has been saved. You can pay later from your orders.",
+              description: "Your order has been cancelled. Please try again when ready.",
             })
           },
         },
@@ -308,9 +323,12 @@ export default function CartPage() {
                 <span className="tabular-nums">-{"\u20B9"}{discount.toLocaleString("en-IN")}</span>
               </div>
             )}
-            <div className="flex justify-between text-muted-foreground">
-              <span>Delivery</span>
-              <span className="font-medium text-success">Free</span>
+            <div className="flex flex-col gap-1 text-muted-foreground">
+              <div className="flex justify-between">
+                <span>Delivery</span>
+                <span className="font-medium text-primary">{delivery.label}</span>
+              </div>
+              <p className="text-xs text-muted-foreground/70">{delivery.feeNote}</p>
             </div>
             <Separator />
             <div className="flex justify-between text-base font-bold text-card-foreground">

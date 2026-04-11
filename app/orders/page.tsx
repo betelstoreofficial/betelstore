@@ -139,9 +139,11 @@ function OrderDetailContent({
           <span>Subtotal</span>
           <span className="tabular-nums">{"\u20B9"}{(order.total || 0).toLocaleString("en-IN")}</span>
         </div>
-        <div className="flex justify-between text-muted-foreground">
-          <span>Delivery</span>
-          <span className="font-medium text-success">Free</span>
+        <div className="flex flex-col gap-1 text-muted-foreground">
+          <div className="flex justify-between">
+            <span>Delivery</span>
+            <span className="text-xs font-medium">As per Porter/Rapido charges</span>
+          </div>
         </div>
         <Separator />
         <div className="flex justify-between text-base font-bold text-card-foreground">

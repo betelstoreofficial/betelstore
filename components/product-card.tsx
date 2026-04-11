@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { Plus, Minus, ShoppingCart, Leaf, Check, X } from "lucide-react"
+import { Plus, Minus, ShoppingCart, Leaf, Check, X, Truck } from "lucide-react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -14,6 +14,7 @@ import { useCart } from "@/lib/cart-context"
 import { toast } from "sonner"
 import type { Product } from "@/lib/db"
 import { cn, proxyImageUrl } from "@/lib/utils"
+import { getDeliveryInfo } from "@/lib/delivery"
 
 interface ProductCardProps {
   product: Product
@@ -233,6 +234,12 @@ export function ProductCard({ product, index }: ProductCardProps) {
                 You save {"\u20B9"}{savings.toLocaleString("en-IN")} on this order
               </p>
             )}
+          </div>
+
+          {/* Delivery estimate */}
+          <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+            <Truck className="h-3 w-3" />
+            <span>{getDeliveryInfo().label}</span>
           </div>
         </div>
       </div>

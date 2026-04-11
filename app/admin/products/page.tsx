@@ -310,7 +310,7 @@ export default function AdminProductsPage() {
                     />
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    {product.tag ? <Badge variant="secondary">{product.tag}</Badge> : "—"}
+                    {product.tag && product.tag !== "none" ? <Badge variant="secondary">{product.tag}</Badge> : "—"}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
@@ -409,7 +409,7 @@ export default function AdminProductsPage() {
                 <Label htmlFor="price">Price per 100 leaves</Label>
                 <Input id="price" type="number" value={form.price_per_100} onChange={(e) => {
                   const price = Number(e.target.value)
-                  setForm({ ...form, price_per_100: price, bulk_price_per_1000: Math.round(price * 9) })
+                  setForm({ ...form, price_per_100: price, bulk_price_per_1000: Math.round(price * 9.5) })
                 }} />
               </div>
               <div className="grid gap-2">

@@ -41,7 +41,7 @@ function getWhatsAppLink(whatsapp: string) {
 
 const trustItems = [
   { icon: Users, label: "500+ Businesses" },
-  { icon: Truck, label: "Pan-India Delivery" },
+  { icon: Truck, label: "Same Day / Next Day Delivery" },
   { icon: Leaf, label: "Farm Fresh" },
   { icon: ShieldCheck, label: "Quality Assured" },
 ]
@@ -102,7 +102,7 @@ const steps = [
   {
     num: "3",
     title: "Fast Delivery",
-    desc: "We pack and dispatch same-day. Track your order until it arrives.",
+    desc: "Same day delivery on Mon/Wed/Fri. Next day delivery on other days. Delivery fee based on Porter/Rapido charges.",
     icon: Truck,
   },
 ]
@@ -444,7 +444,7 @@ export default function LandingPage() {
               </div>
               <p className="text-sm leading-relaxed text-muted-foreground">
                 India&apos;s trusted B2B marketplace for premium betel leaves.
-                Farm-fresh sourcing, transparent pricing, fast delivery.
+                Farm-fresh sourcing, transparent pricing, same day &amp; next day delivery.
               </p>
             </div>
 
