@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
   let query = supabase
     .from('orders')
     .select('*')
+    .neq('admin_hidden', true)
     .order('created_at', { ascending: false })
 
   if (status && status !== 'all') {
@@ -86,4 +87,29 @@ export async function PATCH(request: NextRequest) {
   }
 
   return NextResponse.json(data)
+}
+
+export async function DELETE(request: NextRequest) {
+  const auth = await verifyAdmin()
+  if (auth.error) return auth.error
+
+  const supabase = createAdminClient()
+  const body = await request.json()
+  const ids: string[] = Array.isArray(body.ids) ? body.ids : [body.id].filter(Boolean)
+
+  if (ids.length === 0) {
+    return NextResponse.json({ error: 'Order id(s) required' }, { status: 400 })
+  }
+
+  // Soft delete — hide from admin listing, keep in DB
+  const { error } = await supabase
+    .from('orders')
+    .update({ admin_hidden: true })
+    .in('id', ids)
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ hidden: ids.length })
 }

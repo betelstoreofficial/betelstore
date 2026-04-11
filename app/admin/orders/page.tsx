@@ -1,8 +1,10 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
+import { ArrowUpDown, Trash2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
@@ -18,6 +20,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import {
   Select,
   SelectContent,
@@ -57,6 +69,9 @@ interface Order {
   order_items?: OrderItem[]
 }
 
+type SortKey = "order_number" | "customer" | "created_at" | "total" | "status" | "payment_status"
+type SortDir = "asc" | "desc"
+
 const statusOptions = ["all", "pending", "processing", "shipped", "delivered", "cancelled"]
 const orderStatuses = ["pending", "processing", "shipped", "delivered", "cancelled"]
 
@@ -80,6 +95,35 @@ function paymentColor(status: string) {
   }
 }
 
+function sortOrders(orders: Order[], key: SortKey, dir: SortDir): Order[] {
+  return [...orders].sort((a, b) => {
+    let cmp = 0
+    switch (key) {
+      case "order_number":
+        cmp = (a.order_number || a.id).localeCompare(b.order_number || b.id)
+        break
+      case "customer":
+        cmp = (a.customer?.full_name || a.customer?.email || "").localeCompare(
+          b.customer?.full_name || b.customer?.email || ""
+        )
+        break
+      case "created_at":
+        cmp = new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        break
+      case "total":
+        cmp = (a.total || 0) - (b.total || 0)
+        break
+      case "status":
+        cmp = a.status.localeCompare(b.status)
+        break
+      case "payment_status":
+        cmp = a.payment_status.localeCompare(b.payment_status)
+        break
+    }
+    return dir === "asc" ? cmp : -cmp
+  })
+}
+
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
@@ -87,6 +131,11 @@ export default function AdminOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [updatingStatus, setUpdatingStatus] = useState(false)
+  const [sortKey, setSortKey] = useState<SortKey>("created_at")
+  const [sortDir, setSortDir] = useState<SortDir>("desc")
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [deleteConfirm, setDeleteConfirm] = useState<string[] | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const fetchOrders = useCallback(() => {
     setLoading(true)
@@ -95,12 +144,65 @@ export default function AdminOrdersPage() {
       : `/api/admin/orders?status=${statusFilter}`
     fetch(url)
       .then((res) => res.json())
-      .then((data) => setOrders(Array.isArray(data) ? data : []))
+      .then((data) => {
+        setOrders(Array.isArray(data) ? data : [])
+        setSelected(new Set())
+      })
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [statusFilter])
 
   useEffect(() => { fetchOrders() }, [fetchOrders])
+
+  const sortedOrders = sortOrders(orders, sortKey, sortDir)
+
+  function handleSort(key: SortKey) {
+    if (sortKey === key) {
+      setSortDir(sortDir === "asc" ? "desc" : "asc")
+    } else {
+      setSortKey(key)
+      setSortDir("asc")
+    }
+  }
+
+  function toggleSelect(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  function toggleSelectAll() {
+    if (selected.size === sortedOrders.length) {
+      setSelected(new Set())
+    } else {
+      setSelected(new Set(sortedOrders.map((o) => o.id)))
+    }
+  }
+
+  async function deleteOrders(ids: string[]) {
+    setDeleting(true)
+    try {
+      const res = await fetch("/api/admin/orders", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || "Failed to delete")
+      }
+      toast.success(`Deleted ${ids.length} order(s)`)
+      fetchOrders()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to delete orders")
+    } finally {
+      setDeleting(false)
+      setDeleteConfirm(null)
+    }
+  }
 
   async function openDetail(order: Order) {
     setSelectedOrder(order)
@@ -136,83 +238,150 @@ export default function AdminOrdersPage() {
     }
   }
 
+  function SortHeader({ label, sortKeyName, className }: { label: string; sortKeyName: SortKey; className?: string }) {
+    return (
+      <TableHead className={className}>
+        <button
+          type="button"
+          onClick={() => handleSort(sortKeyName)}
+          className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+        >
+          {label}
+          <ArrowUpDown className={`h-3 w-3 ${sortKey === sortKeyName ? "text-foreground" : "text-muted-foreground/50"}`} />
+        </button>
+      </TableHead>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="font-[family-name:var(--font-heading)] text-2xl font-bold">Orders</h2>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Filter status" />
-          </SelectTrigger>
-          <SelectContent>
-            {statusOptions.map((s) => (
-              <SelectItem key={s} value={s}>
-                {s === "all" ? "All Statuses" : s.charAt(0).toUpperCase() + s.slice(1)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-2">
+          {selected.size > 0 && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setDeleteConfirm(Array.from(selected))}
+              disabled={deleting}
+            >
+              <Trash2 className="mr-1 h-4 w-4" />
+              Delete ({selected.size})
+            </Button>
+          )}
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Filter status" />
+            </SelectTrigger>
+            <SelectContent>
+              {statusOptions.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {s === "all" ? "All Statuses" : s.charAt(0).toUpperCase() + s.slice(1)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Order #</TableHead>
-              <TableHead className="hidden sm:table-cell">Customer</TableHead>
-              <TableHead className="hidden md:table-cell">Date</TableHead>
-              <TableHead className="text-right">Total</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="hidden lg:table-cell">Payment</TableHead>
+              <TableHead className="w-10">
+                <Checkbox
+                  checked={sortedOrders.length > 0 && selected.size === sortedOrders.length}
+                  onCheckedChange={toggleSelectAll}
+                  aria-label="Select all orders"
+                />
+              </TableHead>
+              <SortHeader label="Order #" sortKeyName="order_number" />
+              <SortHeader label="Customer" sortKeyName="customer" className="hidden sm:table-cell" />
+              <SortHeader label="Date" sortKeyName="created_at" className="hidden md:table-cell" />
+              <SortHeader label="Total" sortKeyName="total" className="text-right" />
+              <SortHeader label="Status" sortKeyName="status" />
+              <SortHeader label="Payment" sortKeyName="payment_status" className="hidden lg:table-cell" />
+              <TableHead className="w-10" />
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={i}>
-                  {Array.from({ length: 6 }).map((_, j) => (
+                  {Array.from({ length: 8 }).map((_, j) => (
                     <TableCell key={j}><Skeleton className="h-4 w-20" /></TableCell>
                   ))}
                 </TableRow>
               ))
-            ) : orders.length === 0 ? (
+            ) : sortedOrders.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                   No orders found.
                 </TableCell>
               </TableRow>
             ) : (
-              orders.map((order) => (
+              sortedOrders.map((order) => (
                 <TableRow
                   key={order.id}
-                  className="cursor-pointer transition-colors hover:bg-accent/50"
-                  onClick={() => openDetail(order)}
+                  className={`transition-colors hover:bg-accent/50 ${selected.has(order.id) ? "bg-accent/30" : ""}`}
                 >
-                  <TableCell className="font-medium font-mono text-xs">
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={selected.has(order.id)}
+                      onCheckedChange={() => toggleSelect(order.id)}
+                      aria-label={`Select order ${order.order_number}`}
+                    />
+                  </TableCell>
+                  <TableCell
+                    className="font-medium font-mono text-xs cursor-pointer"
+                    onClick={() => openDetail(order)}
+                  >
                     {order.order_number || order.id.slice(0, 8)}
                   </TableCell>
-                  <TableCell className="hidden sm:table-cell">
+                  <TableCell
+                    className="hidden sm:table-cell cursor-pointer"
+                    onClick={() => openDetail(order)}
+                  >
                     {order.customer?.full_name || order.customer?.email || "—"}
                   </TableCell>
-                  <TableCell className="hidden md:table-cell text-muted-foreground">
+                  <TableCell
+                    className="hidden md:table-cell text-muted-foreground cursor-pointer"
+                    onClick={() => openDetail(order)}
+                  >
                     {new Date(order.created_at).toLocaleDateString("en-IN", {
                       day: "numeric",
                       month: "short",
                       year: "numeric",
                     })}
                   </TableCell>
-                  <TableCell className="text-right font-medium tabular-nums">
+                  <TableCell
+                    className="text-right font-medium tabular-nums cursor-pointer"
+                    onClick={() => openDetail(order)}
+                  >
                     {"\u20B9"}{order.total?.toLocaleString("en-IN")}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="cursor-pointer" onClick={() => openDetail(order)}>
                     <Badge variant="secondary" className={statusColor(order.status)}>
                       {order.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="hidden lg:table-cell">
+                  <TableCell
+                    className="hidden lg:table-cell cursor-pointer"
+                    onClick={() => openDetail(order)}
+                  >
                     <Badge variant="secondary" className={paymentColor(order.payment_status)}>
                       {order.payment_status}
                     </Badge>
+                  </TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      onClick={() => setDeleteConfirm([order.id])}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
@@ -220,6 +389,28 @@ export default function AdminOrdersPage() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deleteConfirm} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {deleteConfirm?.length === 1 ? "order" : `${deleteConfirm?.length} orders`}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the {deleteConfirm?.length === 1 ? "order" : "orders"} and all associated items from the database. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteConfirm && deleteOrders(deleteConfirm)}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Order Detail Dialog */}
       <Dialog open={!!selectedOrder} onOpenChange={(open) => !open && setSelectedOrder(null)}>
@@ -321,16 +512,30 @@ export default function AdminOrdersPage() {
                 </div>
               </div>
 
-              <p className="text-xs text-muted-foreground">
-                Ordered on{" "}
-                {new Date(selectedOrder.created_at).toLocaleDateString("en-IN", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">
+                  Ordered on{" "}
+                  {new Date(selectedOrder.created_at).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  onClick={() => {
+                    setSelectedOrder(null)
+                    setDeleteConfirm([selectedOrder.id])
+                  }}
+                >
+                  <Trash2 className="mr-1 h-4 w-4" />
+                  Delete
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>

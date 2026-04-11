@@ -49,9 +49,29 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const stored = localStorage.getItem(cartKey)
       if (stored) {
         const parsed: CartItem[] = JSON.parse(stored)
-        setItems(parsed.filter((i) => i.product && i.product.id && typeof i.product.price_per_100 === "number"))
+        const validItems = parsed.filter((i) => i.product && i.product.id && typeof i.product.price_per_100 === "number")
+        if (validItems.length > 0) {
+          setItems(validItems)
+        } else if (user?.id) {
+          // User cart exists but is empty/invalid, try guest cart
+          const guestCart = localStorage.getItem(getCartKey(null))
+          if (guestCart) {
+            const guestItems: CartItem[] = JSON.parse(guestCart)
+            const validGuestItems = guestItems.filter((i) => i.product && i.product.id && typeof i.product.price_per_100 === "number")
+            if (validGuestItems.length > 0) {
+              setItems(validGuestItems)
+              localStorage.removeItem(getCartKey(null))
+            } else {
+              setItems([])
+            }
+          } else {
+            setItems([])
+          }
+        } else {
+          setItems([])
+        }
       } else {
-        // If user just logged in and has no saved cart, check if guest cart exists and migrate it
+        // No saved cart for this key — migrate guest cart if user just logged in
         if (user?.id) {
           const guestCart = localStorage.getItem(getCartKey(null))
           if (guestCart) {
@@ -60,7 +80,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
             if (validItems.length > 0) {
               setItems(validItems)
               localStorage.removeItem(getCartKey(null))
+            } else {
+              setItems([])
             }
+          } else {
+            setItems([])
           }
         } else {
           setItems([])
@@ -72,12 +96,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setHydrated(true)
   }, [user, authLoading, currentCartKey])
 
-  // Persist to localStorage on every change (only after initial load)
+  // Persist to localStorage on every change (only after initial load and auth resolved)
   useEffect(() => {
-    if (hydrated && currentCartKey) {
+    if (hydrated && currentCartKey && !authLoading) {
       localStorage.setItem(currentCartKey, JSON.stringify(items))
     }
-  }, [items, hydrated, currentCartKey])
+  }, [items, hydrated, currentCartKey, authLoading])
 
   const addItem = useCallback((product: Product, quantity: number, isBulk: boolean) => {
     setItems((prev) => {

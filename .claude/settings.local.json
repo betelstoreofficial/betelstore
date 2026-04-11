@@ -8,7 +8,13 @@
       "Bash(npx next:*)",
       "Bash(python:*)",
       "Bash(wc:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(pip install:*)",
+      "Bash(rm:*)",
+      "Bash(mkdir:*)",
+      "Bash(PYTHONIOENCODING=utf-8 python:*)",
+      "Skill(investigate)",
+      "Bash(grep -E \"\\\\.\\(tsx?|jsx?\\)$\")"
     ]
   }
 }

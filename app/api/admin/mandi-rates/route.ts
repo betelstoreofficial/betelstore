@@ -51,7 +51,16 @@ export async function PUT(request: NextRequest) {
       continue
     }
 
-    const yesterdayPrice = existing.today_price
+    // Only roll over yesterday_price once per day
+    // If already updated today, keep the existing yesterday_price
+    const updatedAt = existing.updated_at ? new Date(existing.updated_at) : null
+    const today = new Date()
+    const alreadyUpdatedToday = updatedAt &&
+      updatedAt.getFullYear() === today.getFullYear() &&
+      updatedAt.getMonth() === today.getMonth() &&
+      updatedAt.getDate() === today.getDate()
+
+    const yesterdayPrice = alreadyUpdatedToday ? existing.yesterday_price : existing.today_price
     const change = rate.today_price - yesterdayPrice
 
     const { error } = await supabase
@@ -73,7 +82,10 @@ export async function PUT(request: NextRequest) {
     if (existing.product_id) {
       const { error: productError } = await supabase
         .from('products')
-        .update({ price_per_100: rate.today_price })
+        .update({
+          price_per_100: rate.today_price,
+          bulk_price_per_1000: Math.round(rate.today_price * 9.5),
+        })
         .eq('id', existing.product_id)
 
       if (productError) {
