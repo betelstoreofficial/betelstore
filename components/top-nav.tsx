@@ -59,8 +59,8 @@ export function TopNav() {
     <header className="fixed inset-x-0 top-0 z-50 hidden h-16 border-b border-border bg-background/80 backdrop-blur-lg md:block">
       <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary/15 to-emerald-400/15 ">
-            <Image src="/tbs-leaf.png" alt="The Betel Store" width={24} height={24} className="h-6 w-6 rounded-lg object-contain" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary/0 to-emerald-600/15 ">
+            <Image src="/tbs-leaf.png" alt="The Betel Store" width={24} height={24} className="h-10 w-10 rounded-lg object-contain" />
           </div>
           <span className="font-[family-name:var(--font-heading)] text-lg font-bold text-foreground">
             The Betel Store
