@@ -67,7 +67,11 @@ function buildEmailTemplate(title: string, greeting: string, body: string): stri
       <div style="max-width: 600px; margin: 0 auto; padding: 24px;">
         <!-- Header -->
         <div style="background: linear-gradient(135deg, #1a5c2a, #2d8a4e); border-radius: 12px 12px 0 0; padding: 28px 24px; text-align: center;">
-          <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 700;">🍃 The Betel Store</h1>
+          <!--[if mso]><table cellpadding="0" cellspacing="0" align="center"><tr><td valign="middle"><![endif]-->
+          <img src="https://thebetelstore.com/tbs-leaf-email.png" alt="" width="36" height="36" style="display: inline-block; vertical-align: middle; margin-right: 10px;" />
+          <!--[if mso]></td><td valign="middle"><![endif]-->
+          <h1 style="display: inline-block; vertical-align: middle; margin: 0; color: #ffffff; font-size: 22px; font-weight: 700;">The Betel Store</h1>
+          <!--[if mso]></td></tr></table><![endif]-->
           <p style="margin: 6px 0 0; color: #d1fae5; font-size: 13px;">Premium Betel Leaves Wholesale</p>
         </div>
 

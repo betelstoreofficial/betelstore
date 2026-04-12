@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Leaf, ShoppingCart, Package, User, LogIn, Shield } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
@@ -25,9 +26,7 @@ export function TopNav() {
     {/* Mobile Header */}
     <header className="fixed inset-x-0 top-0 z-50 flex h-14 items-center justify-between border-b border-border bg-background/80 backdrop-blur-lg px-4 md:hidden">
       <Link href="/" className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-          <Leaf className="h-4 w-4 text-primary-foreground" />
-        </div>
+        <Image src="/tbs-leaf.png" alt="The Betel Store" width={32} height={32} className="h-8 w-8 rounded-lg object-contain" />
         <span className="font-[family-name:var(--font-heading)] text-base font-bold text-foreground">
           The Betel Store
         </span>
@@ -60,8 +59,8 @@ export function TopNav() {
     <header className="fixed inset-x-0 top-0 z-50 hidden h-16 border-b border-border bg-background/80 backdrop-blur-lg md:block">
       <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <Leaf className="h-4 w-4 text-primary-foreground" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary/15 to-emerald-400/15 ">
+            <Image src="/tbs-leaf.png" alt="The Betel Store" width={24} height={24} className="h-6 w-6 rounded-lg object-contain" />
           </div>
           <span className="font-[family-name:var(--font-heading)] text-lg font-bold text-foreground">
             The Betel Store

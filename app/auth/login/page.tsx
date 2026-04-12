@@ -5,7 +5,8 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Leaf, AlertCircle, Loader2, ArrowLeft } from "lucide-react"
+import { AlertCircle, Loader2, ArrowLeft } from "lucide-react"
+import Image from "next/image"
 
 declare global {
   interface Window {
@@ -117,9 +118,13 @@ function LoginForm() {
             <div className="w-9" /> {/* Spacer to balance layout */}
           </div>
           <div className="flex flex-col items-center">
-            <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-              <Leaf className="h-6 w-6 text-primary" />
-            </div>
+            <Image
+              src="/tbs-leaf.png"
+              alt="The Betel Store"
+              width={48}
+              height={48}
+              className="mb-2"
+            />
             <CardTitle className="font-[family-name:var(--font-heading)] text-2xl text-card-foreground">
               The Betel Store
             </CardTitle>
