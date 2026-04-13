@@ -210,7 +210,7 @@ export default function CartPage() {
             const bulkPricePer100 = (item.product.bulk_price_per_1000 || 0) / 10
             const effectivePrice = isBulkActive ? bulkPricePer100 : (item.product.price_per_100 || 0)
             const itemTotal = (effectivePrice * item.quantity) / 100
-            const step = 100
+            const step = 50
 
             return (
               <div
@@ -257,7 +257,7 @@ export default function CartPage() {
                       <div className="flex items-center rounded-lg border border-border">
                         <button
                           type="button"
-                          onClick={() => updateQuantity(item.product.id, Math.max(step, item.quantity - step))}
+                          onClick={() => updateQuantity(item.product.id, Math.max(100, item.quantity - step))}
                           className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-l-lg text-muted-foreground transition-all hover:bg-secondary active:bg-secondary active:scale-95"
                           aria-label="Decrease quantity"
                         >

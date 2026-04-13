@@ -40,7 +40,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
     : 0
   const savingsPerUnit = product.price_per_100 * 10 - product.bulk_price_per_1000
 
-  const step = 100
+  const step = 50
   const minQty = isBulk ? product.bulk_min_qty : 100
 
   const handleModeSwitch = (bulk: boolean) => {
