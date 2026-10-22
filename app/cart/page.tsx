@@ -326,12 +326,10 @@ export default function CartPage() {
                 <span className="tabular-nums">-{"\u20B9"}{discount.toLocaleString("en-IN")}</span>
               </div>
             )}
-            <div className="flex flex-col gap-1 text-muted-foreground">
-              <div className="flex justify-between">
-                <span>Delivery</span>
-                <span className="font-medium text-primary">{delivery.label}</span>
-              </div>
-              <p className="text-xs text-muted-foreground/70">{delivery.feeNote}</p>
+            <div className="flex flex-col gap-1.5 text-muted-foreground">
+              <span>Delivery</span>
+              <span className="font-medium leading-snug text-primary">{delivery.label}</span>
+              <p className="text-xs leading-relaxed text-muted-foreground/70">{delivery.feeNote}</p>
             </div>
             <Separator />
             <div className="flex justify-between text-base font-bold text-card-foreground">
