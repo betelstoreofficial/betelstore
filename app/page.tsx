@@ -80,19 +80,19 @@ const steps = [
   {
     num: "1",
     title: "Browse & Select",
-    desc: "Explore our catalogue of premium betel leaf varieties with live pricing.",
+    desc: "Pick your leaves at live mandi rates.",
     icon: Search,
   },
   {
     num: "2",
     title: "Place Your Order",
-    desc: "Add to cart and checkout. We offer bulk discounts automatically.",
+    desc: "Add to cart and checkout. Bulk discounts apply automatically.",
     icon: ClipboardList,
   },
   {
     num: "3",
     title: "Fast Delivery",
-    desc: "Ahmedabad & Gandhinagar: same-day delivery by Porter/Rapido on Mon, Wed & Fri (order before 7 PM, subject to availability); next day otherwise. Rest of India: dispatched within 24 hours by road or rail.",
+    desc: "Ahmedabad and Gandhinagar: same day before 7 PM (Mon, Wed, Fri), next day otherwise. Rest of India: dispatched in 24 hours.",
     icon: Truck,
   },
 ]
