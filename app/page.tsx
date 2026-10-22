@@ -24,21 +24,10 @@ import {
   Zap,
 } from "lucide-react"
 import { DailyPriceTable } from "@/components/daily-price-table"
+import { useSiteSettings } from "@/hooks/use-site-settings"
+import { getWhatsAppLink } from "@/lib/site-settings"
 import { ProductCard } from "@/components/product-card"
 import { getProducts, type Product } from "@/lib/db"
-
-const DEFAULT_SETTINGS = {
-  phone: "+91 99999 99999",
-  email: "hello@betelwholesale.com",
-  whatsapp: "919999999999",
-  address: "Mumbai, Maharashtra, India",
-  business_hours_weekday: "Mon – Sat: 6 AM – 9 PM",
-  business_hours_weekend: "Sunday: 8 AM – 2 PM",
-}
-
-function getWhatsAppLink(whatsapp: string) {
-  return `https://wa.me/${whatsapp}?text=Hi%2C%20I%27d%20like%20a%20bulk%20quote%20for%20betel%20leaves`
-}
 
 const trustItems = [
   { icon: Users, label: "500+ Businesses" },
@@ -103,7 +92,7 @@ const steps = [
   {
     num: "3",
     title: "Fast Delivery",
-    desc: "Same day delivery on Mon/Wed/Fri. Next day delivery on other days. Delivery fee based on Porter/Rapido charges.",
+    desc: "Ahmedabad & Gandhinagar: same-day delivery by Porter/Rapido on Mon, Wed & Fri (order before 7 PM, subject to availability); next day otherwise. Rest of India: dispatched within 24 hours by road or rail.",
     icon: Truck,
   },
 ]
@@ -134,7 +123,7 @@ const testimonials = [
 
 export default function LandingPage() {
   const [products, setProducts] = useState<Product[]>([])
-  const [settings, setSettings] = useState(DEFAULT_SETTINGS)
+  const settings = useSiteSettings()
 
   useEffect(() => {
     async function load() {
@@ -142,13 +131,6 @@ export default function LandingPage() {
       setProducts(data.slice(0, 3))
     }
     load()
-
-    fetch("/api/site-settings")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && !data.error) setSettings(data)
-      })
-      .catch(() => {})
   }, [])
 
   return (
@@ -191,7 +173,7 @@ export default function LandingPage() {
                 <ChevronRight className="h-4 w-4" />
               </Link>
               <a
-                href={getWhatsAppLink(settings.whatsapp)}
+                href={getWhatsAppLink(settings.whatsapp, "Hi, I'd like a bulk quote for betel leaves")}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Get bulk quote on WhatsApp (opens in new tab)"
@@ -417,7 +399,7 @@ export default function LandingPage() {
               <ChevronRight className="h-4 w-4" />
             </Link>
             <a
-              href={getWhatsAppLink(settings.whatsapp)}
+              href={getWhatsAppLink(settings.whatsapp, "Hi, I'd like a bulk quote for betel leaves")}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Contact us on WhatsApp (opens in new tab)"

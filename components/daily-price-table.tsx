@@ -100,8 +100,8 @@ export function DailyPriceTable() {
                       ) : (
                         <Minus className="h-3 w-3" />
                       )}
-                      {row.change > 0 ? "+" : ""}
-                      {"\u20B9"}{row.change}
+                      {row.change > 0 ? "+" : row.change < 0 ? "-" : ""}
+                      {"\u20B9"}{Math.abs(row.change).toLocaleString("en-IN")}
                     </span>
                   </td>
                 </tr>

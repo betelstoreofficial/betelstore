@@ -16,7 +16,17 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json(data)
+  // Derive the displayed change from today vs yesterday prices on every read;
+  // the stored column can go stale if a row is edited outside this flow.
+  const rows = (data ?? []).map((r) => ({
+    ...r,
+    change:
+      r.yesterday_price != null && r.today_price != null
+        ? r.today_price - r.yesterday_price
+        : (r.change ?? 0),
+  }))
+
+  return NextResponse.json(rows)
 }
 
 export async function PUT(request: NextRequest) {

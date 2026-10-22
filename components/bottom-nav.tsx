@@ -2,10 +2,12 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Store, ShoppingCart, ClipboardList, User, Shield } from "lucide-react"
+import { Store, ShoppingCart, ClipboardList, User, Shield, Phone, MessageCircle } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
 import { useAuth } from "@/lib/auth-context"
 import { isAdminClient } from "@/lib/admin"
+import { useSiteSettings } from "@/hooks/use-site-settings"
+import { getTelLink, getWhatsAppLink } from "@/lib/site-settings"
 
 const tabs = [
   { href: "/shop", label: "Shop", icon: Store },
@@ -18,12 +20,30 @@ export function BottomNav() {
   const pathname = usePathname()
   const { totalItems } = useCart()
   const { user } = useAuth()
+  const settings = useSiteSettings()
 
   const showAdmin = user && isAdminClient(user.email)
 
   const allTabs = showAdmin
     ? [...tabs, { href: "/admin", label: "Admin", icon: Shield }]
     : tabs
+
+  const contactActions = [
+    {
+      href: getTelLink(settings.phone),
+      label: "Call",
+      icon: Phone,
+      external: false,
+      ariaLabel: `Call us at ${settings.phone}`,
+    },
+    {
+      href: getWhatsAppLink(settings.whatsapp, "Hi, I'd like a bulk quote for betel leaves"),
+      label: "WhatsApp",
+      icon: MessageCircle,
+      external: true,
+      ariaLabel: "Chat with us on WhatsApp (opens in new tab)",
+    },
+  ]
 
   return (
     <nav
@@ -37,7 +57,7 @@ export function BottomNav() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`relative flex min-w-[64px] flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-medium ${
+              className={`relative flex min-w-[48px] flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium ${
                 isActive ? "text-primary" : "text-muted-foreground"
               }`}
             >
@@ -56,6 +76,18 @@ export function BottomNav() {
             </Link>
           )
         })}
+        {contactActions.map((action) => (
+          <a
+            key={action.label}
+            href={action.href}
+            aria-label={action.ariaLabel}
+            {...(action.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+            className="relative flex min-w-[48px] flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium text-muted-foreground"
+          >
+            <action.icon className="h-5 w-5" />
+            <span>{action.label}</span>
+          </a>
+        ))}
       </div>
     </nav>
   )

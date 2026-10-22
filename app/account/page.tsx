@@ -41,15 +41,7 @@ import { toast } from "sonner"
 import { useAuth } from "@/lib/auth-context"
 import { createClient } from "@/lib/supabase/client"
 import { getOrders, type Order } from "@/lib/db"
-
-const DEFAULT_SETTINGS = {
-  phone: "+91 99999 99999",
-  email: "hello@betelwholesale.com",
-  whatsapp: "919999999999",
-  address: "Mumbai, Maharashtra, India",
-  business_hours_weekday: "Mon – Sat: 6 AM – 9 PM",
-  business_hours_weekend: "Sunday: 8 AM – 2 PM",
-}
+import { DEFAULT_SETTINGS } from "@/lib/site-settings"
 
 const faqs = [
   {
@@ -70,7 +62,7 @@ const faqs = [
   {
     question: "What is the delivery timeline?",
     answer:
-      "We dispatch orders same-day for orders placed before 2 PM. Delivery typically takes 1–3 days depending on your location. We deliver across 20+ cities in India with temperature-controlled packing.",
+      "Ahmedabad & Gandhinagar: same-day delivery by Porter or Rapido on Mon, Wed & Fri for orders placed before 7 PM (subject to availability); next day otherwise. Rest of India: orders are dispatched within 24 hours by road or rail. Porter/Rapido delivery fees are charged at their actual rates.",
   },
   {
     question: "Can I cancel or modify an order?",

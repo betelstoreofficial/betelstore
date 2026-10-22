@@ -13,5 +13,16 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json(data)
+  // Always derive the displayed change from today vs yesterday prices.
+  // The stored `change` column can go stale when a row is edited outside
+  // the admin rollover flow, so recompute it on every read.
+  const rows = (data ?? []).map((r) => ({
+    ...r,
+    change:
+      r.yesterday_price != null && r.today_price != null
+        ? r.today_price - r.yesterday_price
+        : (r.change ?? 0),
+  }))
+
+  return NextResponse.json(rows)
 }

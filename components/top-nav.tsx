@@ -3,10 +3,12 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Leaf, ShoppingCart, Package, User, LogIn, Shield } from "lucide-react"
+import { Leaf, ShoppingCart, Package, User, LogIn, Shield, Phone, MessageCircle } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
 import { useAuth } from "@/lib/auth-context"
 import { isAdminClient } from "@/lib/admin"
+import { useSiteSettings } from "@/hooks/use-site-settings"
+import { getTelLink, getWhatsAppLink } from "@/lib/site-settings"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 const navLinks = [
@@ -20,6 +22,7 @@ export function TopNav() {
   const pathname = usePathname()
   const { totalItems } = useCart()
   const { user, loading } = useAuth()
+  const settings = useSiteSettings()
 
   return (
     <>
@@ -31,7 +34,23 @@ export function TopNav() {
           The Betel Store
         </span>
       </Link>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
+        <a
+          href={getTelLink(settings.phone)}
+          aria-label={`Call us at ${settings.phone}`}
+          className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+        >
+          <Phone className="h-4 w-4" />
+        </a>
+        <a
+          href={getWhatsAppLink(settings.whatsapp, "Hi, I'd like a bulk quote for betel leaves")}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Chat with us on WhatsApp (opens in new tab)"
+          className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
+        >
+          <MessageCircle className="h-4 w-4" />
+        </a>
         {loading ? (
           <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
         ) : user ? (
@@ -107,6 +126,25 @@ export function TopNav() {
               Admin
             </Link>
           )}
+
+          <div className="ml-2 flex items-center gap-1 border-l border-border pl-2">
+            <a
+              href={getTelLink(settings.phone)}
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              <Phone className="h-4 w-4" />
+              Call
+            </a>
+            <a
+              href={getWhatsAppLink(settings.whatsapp, "Hi, I'd like a bulk quote for betel leaves")}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
+            >
+              <MessageCircle className="h-4 w-4" />
+              WhatsApp
+            </a>
+          </div>
 
           <div className="ml-3 border-l border-border pl-3">
             {loading ? (

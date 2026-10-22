@@ -1,10 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Zap, Truck, ShieldCheck } from "lucide-react"
+import { Zap, Truck, ShieldCheck, Phone, MessageCircle } from "lucide-react"
 import { DailyPriceTable } from "@/components/daily-price-table"
 import { ProductCard } from "@/components/product-card"
 import { getProducts, type Product } from "@/lib/db"
+import { useSiteSettings } from "@/hooks/use-site-settings"
+import { getTelLink, getWhatsAppLink } from "@/lib/site-settings"
 
 const features = [
   { icon: Zap, label: "Instant Quotes" },
@@ -15,6 +17,7 @@ const features = [
 export default function ShopPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const settings = useSiteSettings()
 
   useEffect(() => {
     async function loadProducts() {
@@ -41,6 +44,25 @@ export default function ShopPage() {
               Source the finest betel leaves directly from growers. Real-time mandi
               rates, bulk discounts, and fast delivery across India.
             </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <a
+              href={getTelLink(settings.phone)}
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-emerald-600 px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:shadow-xl hover:shadow-primary/40 hover:brightness-110"
+            >
+              <Phone className="h-4 w-4" />
+              Call {settings.phone}
+            </a>
+            <a
+              href={getWhatsAppLink(settings.whatsapp, "Hi, I'd like a bulk quote for betel leaves")}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-2.5 text-sm font-semibold text-card-foreground transition-colors hover:bg-accent"
+            >
+              <MessageCircle className="h-4 w-4" />
+              WhatsApp Us
+            </a>
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
