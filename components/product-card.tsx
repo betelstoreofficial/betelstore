@@ -126,7 +126,8 @@ export function ProductCard({ product, index }: ProductCardProps) {
         </div>
 
         <p className="text-xs leading-relaxed text-muted-foreground">
-          {product.description} {packagingDescription(product)}
+          {product.description}
+          <span className="mt-1 block">{packagingDescription(product)}</span>
         </p>
 
         <div className="mt-auto flex flex-col gap-3">
