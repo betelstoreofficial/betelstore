@@ -86,7 +86,7 @@ function buildEmailTemplate(title: string, greeting: string, body: string): stri
 
         <!-- Footer -->
         <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 12px;">
-          <p style="margin: 0;">The Betel Store — thebetelstore.com</p>
+          <p style="margin: 0;">The Betel Store - thebetelstore.com</p>
           <p style="margin: 4px 0 0;">If you have questions, reply to this email.</p>
         </div>
       </div>
@@ -131,7 +131,7 @@ export async function sendOrderConfirmationToUser(data: OrderEmailData): Promise
   await transporter.sendMail({
     from: `"The Betel Store" <${process.env.GMAIL_USER}>`,
     to: userEmail,
-    subject: `Order Confirmed — #${orderNumber} | The Betel Store`,
+    subject: `Order Confirmed - #${orderNumber} | The Betel Store`,
     html,
   })
 }
@@ -164,7 +164,7 @@ export async function sendPaymentSuccessToUser(data: OrderEmailData): Promise<vo
   await transporter.sendMail({
     from: `"The Betel Store" <${process.env.GMAIL_USER}>`,
     to: userEmail,
-    subject: `Payment Received — #${orderNumber} | The Betel Store`,
+    subject: `Payment Received - #${orderNumber} | The Betel Store`,
     html,
   })
 }
@@ -189,7 +189,7 @@ export async function sendOrderStatusUpdateToUser(
   const body = `
     <div style="background: ${config.bg}; border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 20px;">
       <div style="font-size: 36px; margin-bottom: 8px;">${config.emoji}</div>
-      <p style="margin: 0; color: ${config.color}; font-size: 16px; font-weight: 600;">Order #${orderNumber} — ${status.charAt(0).toUpperCase() + status.slice(1)}</p>
+      <p style="margin: 0; color: ${config.color}; font-size: 16px; font-weight: 600;">Order #${orderNumber} - ${status.charAt(0).toUpperCase() + status.slice(1)}</p>
     </div>
     <p style="color: #374151; font-size: 14px; line-height: 1.6;">${config.message}</p>
     <div style="text-align: center; margin-top: 24px;">
@@ -206,7 +206,7 @@ export async function sendOrderStatusUpdateToUser(
   await transporter.sendMail({
     from: `"The Betel Store" <${process.env.GMAIL_USER}>`,
     to: userEmail,
-    subject: `Order ${status.charAt(0).toUpperCase() + status.slice(1)} — #${orderNumber} | The Betel Store`,
+    subject: `Order ${status.charAt(0).toUpperCase() + status.slice(1)} - #${orderNumber} | The Betel Store`,
     html,
   })
 }
@@ -254,7 +254,7 @@ export async function sendNewOrderAlertToAdmin(data: OrderEmailData): Promise<vo
   await transporter.sendMail({
     from: `"The Betel Store" <${process.env.GMAIL_USER}>`,
     to: adminEmail,
-    subject: `🔔 New Order #${orderNumber} — ${formatCurrency(total)} | The Betel Store`,
+    subject: `🔔 New Order #${orderNumber} - ${formatCurrency(total)} | The Betel Store`,
     html,
   })
 }

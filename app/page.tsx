@@ -160,7 +160,7 @@ export default function LandingPage() {
             {/* Subtitle */}
             <p className="mb-8 max-w-xl animate-in fade-in slide-in-from-top-4 text-base leading-relaxed text-muted-foreground duration-500 delay-200 md:text-lg">
               Real-time mandi rates, farm-fresh sourcing, bulk discounts, and
-              same-day dispatch — everything your business needs in one platform.
+              same-day dispatch - everything your business needs in one platform.
             </p>
 
             {/* CTAs */}

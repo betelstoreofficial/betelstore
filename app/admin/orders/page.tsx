@@ -346,7 +346,7 @@ export default function AdminOrdersPage() {
                     className="hidden sm:table-cell cursor-pointer"
                     onClick={() => openDetail(order)}
                   >
-                    {order.customer?.full_name || order.customer?.email || "—"}
+                    {order.customer?.full_name || order.customer?.email || "-"}
                   </TableCell>
                   <TableCell
                     className="hidden md:table-cell text-muted-foreground cursor-pointer"
@@ -429,7 +429,7 @@ export default function AdminOrdersPage() {
               {/* Customer Info */}
               <div>
                 <h4 className="text-sm font-semibold text-muted-foreground mb-1">Customer</h4>
-                <p className="text-sm">{selectedOrder.customer?.full_name || "—"}</p>
+                <p className="text-sm">{selectedOrder.customer?.full_name || "-"}</p>
                 <p className="text-xs text-muted-foreground">{selectedOrder.customer?.email}</p>
                 {selectedOrder.customer?.phone && (
                   <p className="text-xs text-muted-foreground">{selectedOrder.customer.phone}</p>

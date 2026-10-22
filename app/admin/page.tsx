@@ -50,7 +50,7 @@ export default function AdminDashboard() {
                 <Skeleton className="h-8 w-24" />
               ) : (
                 <p className="font-[family-name:var(--font-heading)] text-2xl font-bold tabular-nums">
-                  {stats ? card.format(stats[card.key]) : "—"}
+                  {stats ? card.format(stats[card.key]) : "-"}
                 </p>
               )}
             </CardContent>

@@ -52,7 +52,7 @@ const faqs = [
   {
     question: "What payment methods are accepted?",
     answer:
-      "We accept all major payment methods through Razorpay — UPI, credit/debit cards, net banking, and popular wallets. All transactions are secured with industry-standard encryption.",
+      "We accept all major payment methods through Razorpay - UPI, credit/debit cards, net banking, and popular wallets. All transactions are secured with industry-standard encryption.",
   },
   {
     question: "How is pricing determined?",
@@ -72,7 +72,7 @@ const faqs = [
   {
     question: "How do I contact support?",
     answer:
-      "You can reach us via phone, email, or WhatsApp — all contact details are listed below. Our team is available during business hours and typically responds within 1 hour.",
+      "You can reach us via phone, email, or WhatsApp - all contact details are listed below. Our team is available during business hours and typically responds within 1 hour.",
   },
 ]
 
@@ -237,7 +237,7 @@ export default function AccountPage() {
               className="mx-5 mb-4 flex w-[calc(100%-2.5rem)] items-center gap-2 rounded-lg bg-warning/10 px-3 py-2 text-left text-xs font-medium text-warning-foreground transition-colors hover:bg-warning/15"
             >
               <Settings className="h-3.5 w-3.5 flex-shrink-0" />
-              Complete your profile — {incompleteFields} {incompleteFields === 1 ? "field" : "fields"} remaining
+              Complete your profile - {incompleteFields} {incompleteFields === 1 ? "field" : "fields"} remaining
               <ChevronRight className="ml-auto h-3.5 w-3.5" />
             </button>
           )}

@@ -296,7 +296,7 @@ export default function CartPage() {
 
                     {isBulkActive && (
                       <div className="rounded-lg bg-success/10 px-3 py-1.5 text-[11px] font-medium text-success">
-                        Bulk pricing applied &mdash; saving {"\u20B9"}
+                        Bulk pricing applied - saving {"\u20B9"}
                         {(pricing.discount).toLocaleString("en-IN")}
                       </div>
                     )}

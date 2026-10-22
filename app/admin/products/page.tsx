@@ -312,7 +312,7 @@ export default function AdminProductsPage() {
                     />
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    {product.tag && product.tag !== "none" ? <Badge variant="secondary">{product.tag}</Badge> : "—"}
+                    {product.tag && product.tag !== "none" ? <Badge variant="secondary">{product.tag}</Badge> : "-"}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
@@ -371,7 +371,7 @@ export default function AdminProductsPage() {
                     <>
                       <Upload className="h-8 w-8 text-muted-foreground/50" />
                       <span className="text-xs text-muted-foreground">Click to upload image</span>
-                      <span className="text-[10px] text-muted-foreground/70">JPG, PNG, WebP — max 5MB</span>
+                      <span className="text-[10px] text-muted-foreground/70">JPG, PNG, WebP - max 5MB</span>
                     </>
                   )}
                 </div>

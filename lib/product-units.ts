@@ -24,8 +24,8 @@ export function bulkActive(product: { name: string; bulk_min_qty: number }, qty:
 }
 export function packagingDescription(product: { name: string }) {
   return isCalcutta(product)
-    ? "Packed in a bharti of 350-400 leaves. Minimum order: 1 bharti."
-    : "Packed in bundles of 50 leaves. Minimum order: 100 leaves (2 bundles); add in steps of 50."
+    ? "1 bharti = 350-400 leaves. Minimum order 1 bharti."
+    : "1 bundle = 50 leaves. Minimum order 100 leaves (2 bundles)."
 }
 // Historical orders without a unit snapshot keep their original per-100 basis.
 export function orderUnit(item: { pricing_unit?: string }) {
