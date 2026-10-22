@@ -37,6 +37,7 @@ export interface Order {
 }
 
 export interface OrderItem {
+  pricing_unit?: string
   id: string
   order_id: string
   product_id: string
@@ -90,7 +91,9 @@ export async function getOrderItems(orderId: string): Promise<OrderItem[]> {
     return []
   }
 
-  return data || []
+  const { data: order } = await supabase.from('orders').select('items').eq('id', orderId).single()
+  const snapshots = (order?.items || []) as { product_id: string; pricing_unit?: string }[]
+  return (data || []).map(item => ({ ...item, pricing_unit: snapshots.find(s => s.product_id === item.product_id)?.pricing_unit }))
 }
 
 export interface CreateOrderResponse {

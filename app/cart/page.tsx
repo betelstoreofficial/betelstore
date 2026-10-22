@@ -24,6 +24,8 @@ import { createOrder, verifyPayment } from "@/lib/db"
 import { proxyImageUrl } from "@/lib/utils"
 import { getDeliveryInfo } from "@/lib/delivery"
 
+import { packagingDescription, quantityRules, linePricing, validQuantity } from "@/lib/product-units"
+
 export default function CartPage() {
   const { items, updateQuantity, removeItem, clearCart, subtotal, discount, total } = useCart()
   const { user, loading: authLoading } = useAuth()
@@ -59,18 +61,21 @@ export default function CartPage() {
     }
 
     if (items.length === 0) return
+    if (items.some(i => !validQuantity(i.product, i.quantity))) {
+      toast.error("Check quantities: Calcutta minimum 1 bharti; others minimum 100 leaves in steps of 50.")
+      return
+    }
 
     setPlacing(true)
     try {
       const orderItems = items.map((item) => {
-        const isBulkActive = item.isBulk && item.quantity >= item.product.bulk_min_qty
-        const bulkPricePer100 = item.product.bulk_price_per_1000 / 10
+        const pricing = linePricing(item.product, item.quantity, item.isBulk)
         return {
           productId: item.product.id,
           productName: item.product.name,
           quantity: item.quantity,
-          pricePerUnit: isBulkActive ? bulkPricePer100 : item.product.price_per_100,
-          isBulk: isBulkActive,
+          pricePerUnit: pricing.rate,
+          isBulk: pricing.bulk,
         }
       })
 
@@ -206,11 +211,12 @@ export default function CartPage() {
         {/* Cart Items */}
         <div className="flex-1">
           {items.map((item) => {
-            const isBulkActive = item.isBulk && item.quantity >= (item.product.bulk_min_qty || 0)
-            const bulkPricePer100 = (item.product.bulk_price_per_1000 || 0) / 10
-            const effectivePrice = isBulkActive ? bulkPricePer100 : (item.product.price_per_100 || 0)
-            const itemTotal = (effectivePrice * item.quantity) / 100
-            const step = 50
+            const rules = quantityRules(item.product)
+            const pricing = linePricing(item.product, item.quantity, item.isBulk)
+            const isBulkActive = pricing.bulk
+            const effectivePrice = pricing.rate
+            const itemTotal = pricing.total
+            const step = rules.step
 
             return (
               <div
@@ -240,7 +246,7 @@ export default function CartPage() {
                           {item.product.name}
                         </h3>
                         <p className="text-xs text-muted-foreground">
-                          {item.product.origin} &middot; {item.product.grade}
+                          {item.product.origin} &middot; {item.product.grade}<span className="block">{packagingDescription(item.product)}</span>
                         </p>
                       </div>
                       <button
@@ -257,9 +263,10 @@ export default function CartPage() {
                       <div className="flex items-center rounded-lg border border-border">
                         <button
                           type="button"
-                          onClick={() => updateQuantity(item.product.id, Math.max(100, item.quantity - step))}
+                          onClick={() => updateQuantity(item.product.id, Math.max(rules.min, item.quantity - step))}
                           className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-l-lg text-muted-foreground transition-all hover:bg-secondary active:bg-secondary active:scale-95"
-                          aria-label="Decrease quantity"
+                          disabled={item.quantity <= rules.min}
+                          aria-label={`Decrease ${item.product.name} quantity`}
                         >
                           <Minus className="h-3.5 w-3.5" />
                         </button>
@@ -270,19 +277,19 @@ export default function CartPage() {
                           type="button"
                           onClick={() => updateQuantity(item.product.id, item.quantity + step)}
                           className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-r-lg text-muted-foreground transition-all hover:bg-secondary active:bg-secondary active:scale-95"
-                          aria-label="Increase quantity"
+                          aria-label={`Increase ${item.product.name} quantity`}
                         >
                           <Plus className="h-3.5 w-3.5" />
                         </button>
                       </div>
-                      <span className="text-xs text-muted-foreground">leaves</span>
+                      <span className="text-xs text-muted-foreground">{rules.unit}</span>
 
                       <div className="ml-auto text-right">
                         <p className="text-sm font-bold text-card-foreground tabular-nums">
                           {"\u20B9"}{itemTotal.toLocaleString("en-IN")}
                         </p>
                         <p className="text-[11px] text-muted-foreground">
-                          {"\u20B9"}{effectivePrice.toLocaleString("en-IN")}/100
+                          {"\u20B9"}{effectivePrice.toLocaleString("en-IN")}/{rules.shortRate}
                         </p>
                       </div>
                     </div>
@@ -290,15 +297,11 @@ export default function CartPage() {
                     {isBulkActive && (
                       <div className="rounded-lg bg-success/10 px-3 py-1.5 text-[11px] font-medium text-success">
                         Bulk pricing applied &mdash; saving {"\u20B9"}
-                        {(((item.product.price_per_100 - bulkPricePer100) * item.quantity) / 100).toLocaleString("en-IN")}
+                        {(pricing.discount).toLocaleString("en-IN")}
                       </div>
                     )}
 
-                    {item.isBulk && item.quantity < item.product.bulk_min_qty && (
-                      <div className="rounded-lg bg-warning/10 px-3 py-1.5 text-[11px] font-medium text-warning-foreground">
-                        Add {(item.product.bulk_min_qty - item.quantity).toLocaleString("en-IN")} more leaves for bulk pricing
-                      </div>
-                    )}
+
                   </div>
                 </div>
               </div>

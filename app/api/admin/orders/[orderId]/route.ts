@@ -37,7 +37,7 @@ export async function GET(
 
   return NextResponse.json({
     ...order,
-    order_items: items ?? [],
+    order_items: (items ?? []).map(item => ({ ...item, pricing_unit: (order.items ?? []).find((s: { product_id: string }) => s.product_id === item.product_id)?.pricing_unit })),
     customer: profile ?? null,
   })
 }

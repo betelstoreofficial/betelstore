@@ -16,36 +16,36 @@ import type { Product } from "@/lib/db"
 import { cn, proxyImageUrl } from "@/lib/utils"
 import { getDeliveryInfo } from "@/lib/delivery"
 
+import { isCalcutta, quantityRules, packagingDescription, linePricing, bulkMinimum } from "@/lib/product-units"
+
 interface ProductCardProps {
   product: Product
   index: number
 }
 
 export function ProductCard({ product, index }: ProductCardProps) {
-  const [quantity, setQuantity] = useState(100)
+  const rules = quantityRules(product)
+  const calcutta = isCalcutta(product)
+  const [quantity, setQuantity] = useState(rules.min)
   const [isBulk, setIsBulk] = useState(false)
   const [added, setAdded] = useState(false)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [imageLoaded, setImageLoaded] = useState(false)
   const { addItem } = useCart()
 
-  // Auto-apply bulk pricing when quantity reaches bulk_min_qty
-  const bulkEligible = quantity >= product.bulk_min_qty
-  const effectiveBulk = isBulk || bulkEligible
-  const currentPrice = effectiveBulk ? product.bulk_price_per_1000 : product.price_per_100
-  const priceLabel = effectiveBulk ? "per 1000 leaves" : "per 100 leaves"
-  const bulkPricePer100 = product.bulk_price_per_1000 / 10
-  const savings = effectiveBulk
-    ? ((product.price_per_100 - bulkPricePer100) * quantity) / 100
-    : 0
-  const savingsPerUnit = product.price_per_100 * 10 - product.bulk_price_per_1000
+  const pricing = linePricing(product, quantity, isBulk)
+  const effectiveBulk = pricing.bulk
+  const currentPrice = calcutta ? pricing.rate : effectiveBulk ? product.bulk_price_per_1000 : product.price_per_100
+  const priceLabel = calcutta ? rules.rate : effectiveBulk ? "per 1000 leaves" : rules.rate
+  const savings = pricing.discount
+  const savingsPerUnit = calcutta ? product.price_per_100 * 0.05 : product.price_per_100 * 10 - product.bulk_price_per_1000
 
-  const step = 50
-  const minQty = isBulk ? product.bulk_min_qty : 100
+  const step = rules.step
+  const minQty = rules.min
 
   const handleModeSwitch = (bulk: boolean) => {
     setIsBulk(bulk)
-    setQuantity(bulk ? product.bulk_min_qty : 100)
+    setQuantity(bulk ? bulkMinimum(product) : rules.min)
   }
 
   const handleAdd = useCallback(() => {
@@ -59,9 +59,9 @@ export function ProductCard({ product, index }: ProductCardProps) {
     })
     setTimeout(() => {
       setAdded(false)
-      setQuantity(isBulk ? product.bulk_min_qty : 100)
+      setQuantity(rules.min)
     }, 1500)
-  }, [addItem, product, quantity, isBulk, effectiveBulk])
+  }, [addItem, product, quantity, isBulk, effectiveBulk, rules.min])
 
   return (
     <article
@@ -125,13 +125,13 @@ export function ProductCard({ product, index }: ProductCardProps) {
           </p>
         </div>
 
-        <p className="text-xs leading-relaxed text-muted-foreground line-clamp-2">
-          {product.description}
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          {product.description} {packagingDescription(product)}
         </p>
 
         <div className="mt-auto flex flex-col gap-3">
           {/* Pricing Toggle */}
-          <div className="flex items-center gap-2 rounded-lg bg-secondary p-1" role="group" aria-label="Pricing mode">
+          {<div className="flex items-center gap-2 rounded-lg bg-secondary p-1" role="group" aria-label="Pricing mode">
             <button
               type="button"
               onClick={() => handleModeSwitch(false)}
@@ -156,19 +156,20 @@ export function ProductCard({ product, index }: ProductCardProps) {
                   : "text-muted-foreground"
               )}
             >
-              Bulk ({"\u2265"}{product.bulk_min_qty.toLocaleString("en-IN")} leaves)
+              Bulk ({"\u2265"}{bulkMinimum(product).toLocaleString("en-IN")} {rules.unit})
             </button>
           </div>
 
+          }
           {/* Price Display - fixed height to prevent layout shift */}
-          <div className="flex h-8 items-baseline gap-2">
+          <div className="flex min-h-8 flex-wrap items-baseline gap-2">
             <span className="font-[family-name:var(--font-heading)] text-2xl font-bold text-card-foreground">
               {"\u20B9"}{currentPrice.toLocaleString("en-IN")}
             </span>
             <span className="text-xs text-muted-foreground">{priceLabel}</span>
             {effectiveBulk && savingsPerUnit > 0 && (
               <span className="ml-auto rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-semibold text-success">
-                Save {"\u20B9"}{savingsPerUnit.toLocaleString("en-IN")}/1000
+                Save {"\u20B9"}{savingsPerUnit.toLocaleString("en-IN")}/{calcutta ? "bharti" : "1000"}
               </span>
             )}
           </div>
@@ -181,7 +182,8 @@ export function ProductCard({ product, index }: ProductCardProps) {
                   type="button"
                   onClick={() => setQuantity(Math.max(minQty, quantity - step))}
                   className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-l-lg text-muted-foreground transition-colors hover:bg-secondary active:bg-secondary"
-                  aria-label="Decrease quantity"
+                  disabled={quantity <= minQty}
+                  aria-label={`Decrease ${product.name} quantity`}
                 >
                   <Minus className="h-4 w-4" />
                 </button>
@@ -193,15 +195,15 @@ export function ProductCard({ product, index }: ProductCardProps) {
                   onClick={() => {
                     const newQty = quantity + step
                     setQuantity(newQty)
-                    if (newQty >= product.bulk_min_qty && !isBulk) setIsBulk(true)
+                    setIsBulk(newQty >= bulkMinimum(product))
                   }}
                   className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-r-lg text-muted-foreground transition-colors hover:bg-secondary active:bg-secondary"
-                  aria-label="Increase quantity"
+                  aria-label={`Increase ${product.name} quantity`}
                 >
                   <Plus className="h-4 w-4" />
                 </button>
               </div>
-              <span className="text-xs text-muted-foreground">leaves</span>
+              <span className="text-xs text-muted-foreground">{rules.unit}</span>
               <Button
                 onClick={handleAdd}
                 size="sm"

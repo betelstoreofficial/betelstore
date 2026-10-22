@@ -47,7 +47,7 @@ const faqs = [
   {
     question: "How do I place a bulk order?",
     answer:
-      "Browse our shop, select your preferred betel leaf variety, choose the quantity, and switch to 'Bulk' pricing for orders above the minimum threshold. Add to cart and proceed to checkout. Bulk discounts are applied automatically.",
+      "Calcutta Full and Medium are priced per bharti of 350-400 leaves, minimum 1 bharti. Other varieties are priced per 100 leaves, packed in bundles of 50, minimum 100 leaves and increments of 50. Browse our shop, choose the quantity, and switch to 'Bulk' pricing for orders above the minimum threshold. Add to cart and proceed to checkout. Calcutta gets 5% off from 4 bhartis. Other varieties keep their displayed bulk discount from the listed leaf threshold. Discounts apply automatically.",
   },
   {
     question: "What payment methods are accepted?",

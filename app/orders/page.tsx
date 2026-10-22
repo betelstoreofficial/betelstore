@@ -1,5 +1,8 @@
 "use client"
 
+import { orderUnit, orderDivisor, orderRateLabel } from "@/lib/product-units"
+
+
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Package, ChevronRight, X, Leaf, Loader2 } from "lucide-react"
@@ -110,11 +113,11 @@ function OrderDetailContent({
               <div className="flex-1">
                 <p className="text-sm font-medium text-card-foreground">{item.product_name}</p>
                 <p className="text-xs text-muted-foreground">
-                  {item.quantity.toLocaleString("en-IN")} leaves × {"\u20B9"}{item.price_per_unit.toLocaleString("en-IN")}/100
+                  {item.quantity.toLocaleString("en-IN")} {orderUnit(item)} × {"\u20B9"}{item.price_per_unit.toLocaleString("en-IN")}/{orderRateLabel(item)}
                 </p>
               </div>
               <span className="text-sm font-semibold text-card-foreground">
-                {"\u20B9"}{((item.quantity * item.price_per_unit) / 100).toLocaleString("en-IN")}
+                {"\u20B9"}{((item.quantity * item.price_per_unit) / orderDivisor(item)).toLocaleString("en-IN")}
               </span>
             </div>
           ))

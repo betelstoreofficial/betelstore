@@ -1,5 +1,7 @@
 "use client"
 
+import { isCalcutta, quantityRules, bulkMinimum } from "@/lib/product-units"
+
 import { useEffect, useState, useCallback, useRef } from "react"
 import { Plus, Pencil, Trash2, Upload, X, ImageIcon } from "lucide-react"
 import Image from "next/image"
@@ -184,7 +186,7 @@ export default function AdminProductsPage() {
   }
 
   async function handleSave() {
-    if (form.bulk_price_per_1000 > 0 && form.price_per_100 > 0 && form.bulk_price_per_1000 / 10 >= form.price_per_100) {
+    if (!isCalcutta(form) && form.bulk_price_per_1000 > 0 && form.price_per_100 > 0 && form.bulk_price_per_1000 / 10 >= form.price_per_100) {
       toast.error("Bulk price per 1000 must be cheaper than 10× daily price per 100")
       return
     }
@@ -258,8 +260,8 @@ export default function AdminProductsPage() {
               <TableHead>Name</TableHead>
               <TableHead className="hidden sm:table-cell">Origin</TableHead>
               <TableHead className="hidden md:table-cell">Grade</TableHead>
-              <TableHead className="text-right">Price/100</TableHead>
-              <TableHead className="hidden lg:table-cell text-right">Bulk/1000</TableHead>
+              <TableHead className="text-right">Price / unit</TableHead>
+              <TableHead className="hidden lg:table-cell text-right">Bulk / 1000 leaves</TableHead>
               <TableHead className="text-center">Available</TableHead>
               <TableHead className="hidden md:table-cell">Tag</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -301,8 +303,8 @@ export default function AdminProductsPage() {
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell className="hidden sm:table-cell">{product.origin}</TableCell>
                   <TableCell className="hidden md:table-cell">{product.grade}</TableCell>
-                  <TableCell className="text-right tabular-nums">{"\u20B9"}{product.price_per_100}</TableCell>
-                  <TableCell className="hidden lg:table-cell text-right tabular-nums">{"\u20B9"}{product.bulk_price_per_1000}</TableCell>
+                  <TableCell className="text-right tabular-nums">{"\u20B9"}{product.price_per_100}<span className="block text-xs text-muted-foreground">{quantityRules(product).rate}</span></TableCell>
+                  <TableCell className="hidden lg:table-cell text-right tabular-nums">{isCalcutta(product) ? `₹${product.price_per_100 * 0.95}/bharti (≥${bulkMinimum(product)})` : `₹${product.bulk_price_per_1000}`}</TableCell>
                   <TableCell className="text-center">
                     <Switch
                       checked={product.available}
@@ -406,18 +408,18 @@ export default function AdminProductsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="price">Price per 100 leaves</Label>
+                <Label htmlFor="price">Price {quantityRules(form).rate}</Label>
                 <Input id="price" type="number" value={form.price_per_100} onChange={(e) => {
                   const price = Number(e.target.value)
                   setForm({ ...form, price_per_100: price, bulk_price_per_1000: Math.round(price * 9.5) })
                 }} />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="bulk_price">Bulk Price per 1000 leaves</Label>
-                <Input id="bulk_price" type="number" value={form.bulk_price_per_1000} onChange={(e) => setForm({ ...form, bulk_price_per_1000: Number(e.target.value) })} />
+                <Label htmlFor="bulk_price">{isCalcutta(form) ? "Bharti bulk price: 5% off at 4+ bhartis" : "Bulk Price per 1000 leaves"}</Label>
+                <Input id="bulk_price" disabled={isCalcutta(form)} type="number" value={form.bulk_price_per_1000} onChange={(e) => setForm({ ...form, bulk_price_per_1000: Number(e.target.value) })} />
               </div>
             </div>
-            {form.price_per_100 > 0 && form.bulk_price_per_1000 > 0 && (
+            {!isCalcutta(form) && form.price_per_100 > 0 && form.bulk_price_per_1000 > 0 && (
               <p className={`text-xs ${form.bulk_price_per_1000 / 10 >= form.price_per_100 ? "text-destructive font-medium" : "text-muted-foreground"}`}>
                 {form.bulk_price_per_1000 / 10 >= form.price_per_100
                   ? `⚠ Bulk rate (₹${(form.bulk_price_per_1000 / 10).toFixed(0)}/100) is not cheaper than daily (₹${form.price_per_100}/100)`
@@ -426,8 +428,8 @@ export default function AdminProductsPage() {
             )}
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="bulk_min">Bulk Min (leaves)</Label>
-                <Input id="bulk_min" type="number" value={form.bulk_min_qty} onChange={(e) => setForm({ ...form, bulk_min_qty: Number(e.target.value) })} />
+                <Label htmlFor="bulk_min">{isCalcutta(form) ? "Bharti threshold: 4 (automatic)" : "Bulk Min (leaves)"}</Label>
+                <Input id="bulk_min" disabled={isCalcutta(form)} type="number" value={form.bulk_min_qty} onChange={(e) => setForm({ ...form, bulk_min_qty: Number(e.target.value) })} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="tag">Tag</Label>

@@ -2,12 +2,16 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react"
 import type { Product } from "@/lib/db"
+import { toast } from "sonner"
 import { useAuth } from "@/lib/auth-context"
+
+import { isCalcutta, quantityRules, normalizeQuantity, bulkActive, linePricing } from "@/lib/product-units"
 
 interface CartItem {
   product: Product
   quantity: number
   isBulk: boolean
+  unitsVersion?: number
 }
 
 interface CartContextType {
@@ -49,7 +53,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const stored = localStorage.getItem(cartKey)
       if (stored) {
         const parsed: CartItem[] = JSON.parse(stored)
-        const validItems = parsed.filter((i) => i.product && i.product.id && typeof i.product.price_per_100 === "number")
+        if (parsed.some(i => i.product && isCalcutta(i.product) && i.unitsVersion !== 2)) toast.info("Calcutta is now sold by bharti. Please re-add Calcutta items to confirm the new quantity and price.")
+        const validItems = parsed.filter((i) => i.product && i.product.id && typeof i.product.price_per_100 === "number" && (!isCalcutta(i.product) || i.unitsVersion === 2)).map(i => ({ ...i, quantity: normalizeQuantity(i.product, i.quantity) }))
         if (validItems.length > 0) {
           setItems(validItems)
         } else if (user?.id) {
@@ -57,7 +62,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           const guestCart = localStorage.getItem(getCartKey(null))
           if (guestCart) {
             const guestItems: CartItem[] = JSON.parse(guestCart)
-            const validGuestItems = guestItems.filter((i) => i.product && i.product.id && typeof i.product.price_per_100 === "number")
+            const validGuestItems = guestItems.filter((i) => i.product && i.product.id && typeof i.product.price_per_100 === "number" && (!isCalcutta(i.product) || i.unitsVersion === 2)).map(i => ({ ...i, quantity: normalizeQuantity(i.product, i.quantity) }))
             if (validGuestItems.length > 0) {
               setItems(validGuestItems)
               localStorage.removeItem(getCartKey(null))
@@ -76,7 +81,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           const guestCart = localStorage.getItem(getCartKey(null))
           if (guestCart) {
             const guestItems: CartItem[] = JSON.parse(guestCart)
-            const validItems = guestItems.filter((i) => i.product && i.product.id && typeof i.product.price_per_100 === "number")
+            const validItems = guestItems.filter((i) => i.product && i.product.id && typeof i.product.price_per_100 === "number" && (!isCalcutta(i.product) || i.unitsVersion === 2)).map(i => ({ ...i, quantity: normalizeQuantity(i.product, i.quantity) }))
             if (validItems.length > 0) {
               setItems(validItems)
               localStorage.removeItem(getCartKey(null))
@@ -104,16 +109,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [items, hydrated, currentCartKey, authLoading])
 
   const addItem = useCallback((product: Product, quantity: number, isBulk: boolean) => {
+    quantity = normalizeQuantity(product, quantity)
+    isBulk = bulkActive(product, quantity, isBulk)
     setItems((prev) => {
       const existing = prev.find((i) => i.product.id === product.id)
       if (existing) {
         return prev.map((i) =>
           i.product.id === product.id
-            ? { ...i, quantity: i.quantity + quantity, isBulk }
+            ? { ...i, product, quantity: i.quantity + quantity, isBulk: bulkActive(product, i.quantity + quantity, true), unitsVersion: 2 }
             : i
         )
       }
-      return [...prev, { product, quantity, isBulk }]
+      return [...prev, { product, quantity, isBulk, unitsVersion: 2 }]
     })
   }, [])
 
@@ -125,7 +132,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) =>
       prev.map((i) =>
         i.product.id === productId
-          ? { ...i, quantity, isBulk: quantity >= i.product.bulk_min_qty }
+          ? { ...i, quantity: normalizeQuantity(i.product, quantity), isBulk: bulkActive(i.product, quantity, true) }
           : i
       )
     )
@@ -139,20 +146,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0)
 
-  // quantity = number of leaves, price_per_100 = price for 100 leaves
-  // total = (price_per_100 * quantity) / 100
-  const subtotal = items.reduce(
-    (sum, i) => sum + (i.product.price_per_100 * i.quantity) / 100,
-    0
-  )
-
-  const discount = items.reduce((sum, i) => {
-    if (i.isBulk && i.quantity >= i.product.bulk_min_qty) {
-      const bulkPricePer100 = i.product.bulk_price_per_1000 / 10
-      return sum + ((i.product.price_per_100 - bulkPricePer100) * i.quantity) / 100
-    }
-    return sum
-  }, 0)
+  const subtotal = items.reduce((sum, i) => sum + linePricing(i.product, i.quantity, i.isBulk).subtotal, 0)
+  const discount = items.reduce((sum, i) => sum + linePricing(i.product, i.quantity, i.isBulk).discount, 0)
 
   const total = subtotal - discount
 

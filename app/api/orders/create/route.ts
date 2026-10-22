@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { getRazorpay } from '@/lib/razorpay'
 import { rateLimit } from '@/lib/rate-limit'
 
+import { quantityRules, validQuantity, linePricing } from "@/lib/product-units"
+
 interface OrderItemInput {
   productId: string
   productName: string
@@ -45,7 +47,7 @@ export async function POST(request: Request) {
 
     // Validate quantities
     for (const item of items) {
-      if (!item.productId || item.quantity <= 0) {
+      if (!item.productId || !Number.isSafeInteger(item.quantity) || item.quantity <= 0) {
         return NextResponse.json({ error: 'Invalid item data' }, { status: 400 })
       }
     }
@@ -68,6 +70,10 @@ export async function POST(request: Request) {
       if (!product) {
         return NextResponse.json({ error: `Product not found: ${item.productId}` }, { status: 400 })
       }
+      if (!validQuantity(product, item.quantity)) {
+        const rules = quantityRules(product)
+        return NextResponse.json({ error: `${product.name}: minimum ${rules.min} ${rules.unit}, in steps of ${rules.step}.` }, { status: 400 })
+      }
       if (!product.available) {
         return NextResponse.json({ error: `Product unavailable: ${product.name}` }, { status: 400 })
       }
@@ -80,26 +86,17 @@ export async function POST(request: Request) {
 
     const itemsJson = items.map(item => {
       const product = productMap.get(item.productId)!
-      const isBulkEligible = item.isBulk && item.quantity >= product.bulk_min_qty
-
-      // Calculate effective price per 100 leaves
-      const bulkPricePer100 = Number(product.bulk_price_per_1000) / 10
-      const effectivePricePer100 = isBulkEligible ? bulkPricePer100 : Number(product.price_per_100)
-
-      // Total = (price_per_100 * quantity) / 100
-      const itemTotal = (Number(product.price_per_100) * item.quantity) / 100
-      serverSubtotal += itemTotal
-
-      if (isBulkEligible) {
-        serverDiscount += ((Number(product.price_per_100) - bulkPricePer100) * item.quantity) / 100
-      }
+      const pricing = linePricing(product, item.quantity, item.isBulk)
+      serverSubtotal += pricing.subtotal
+      serverDiscount += pricing.discount
 
       return {
         product_id: item.productId,
         product_name: product.name,
         quantity: item.quantity,
-        price_per_unit: effectivePricePer100,
-        is_bulk: isBulkEligible,
+        price_per_unit: pricing.rate,
+        is_bulk: pricing.bulk,
+        pricing_unit: quantityRules(product).unit,
       }
     })
 
@@ -120,9 +117,9 @@ export async function POST(request: Request) {
         user_id: user.id,
         order_number: orderNumber,
         items: itemsJson,
-        subtotal: Math.round(serverSubtotal),
-        discount: Math.round(serverDiscount),
-        total: Math.round(serverTotal),
+        subtotal: Math.round(serverSubtotal * 100) / 100,
+        discount: Math.round(serverDiscount * 100) / 100,
+        total: Math.round(serverTotal * 100) / 100,
         status: 'pending',
         payment_status: 'pending',
       })
@@ -157,7 +154,7 @@ export async function POST(request: Request) {
     try {
       const razorpay = getRazorpay()
       razorpayOrder = await razorpay.orders.create({
-        amount: Math.round(serverTotal) * 100,
+        amount: Math.round(serverTotal * 100),
         currency: 'INR',
         receipt: order.id,
       })

@@ -1,5 +1,8 @@
 "use client"
 
+import { orderUnit, orderDivisor, orderRateLabel } from "@/lib/product-units"
+
+
 import { useEffect, useState, useCallback } from "react"
 import { ArrowUpDown, Trash2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -48,6 +51,7 @@ interface OrderCustomer {
 }
 
 interface OrderItem {
+  pricing_unit?: string
   product_name: string
   quantity: number
   price_per_unit: number
@@ -446,14 +450,14 @@ export default function AdminOrdersPage() {
                         <div>
                           <span className="font-medium">{item.product_name}</span>
                           <span className="ml-2 text-muted-foreground">
-                            {item.quantity.toLocaleString("en-IN")} leaves @ {"\u20B9"}{item.price_per_unit}/100
+                            {item.quantity.toLocaleString("en-IN")} {orderUnit(item)} @ {"\u20B9"}{item.price_per_unit}/{orderRateLabel(item)}
                           </span>
                           {item.is_bulk && (
                             <Badge variant="secondary" className="ml-2 text-[10px]">Bulk</Badge>
                           )}
                         </div>
                         <span className="font-medium">
-                          {"\u20B9"}{((item.quantity * item.price_per_unit) / 100).toLocaleString("en-IN")}
+                          {"\u20B9"}{((item.quantity * item.price_per_unit) / orderDivisor(item)).toLocaleString("en-IN")}
                         </span>
                       </div>
                     ))}

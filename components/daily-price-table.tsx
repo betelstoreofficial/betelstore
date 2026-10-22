@@ -5,6 +5,8 @@ import { TrendingUp, TrendingDown, Minus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
 
+import { isCalcutta } from "@/lib/product-units"
+
 interface MandiRate {
   variety: string
   today_price: number
@@ -45,12 +47,13 @@ export function DailyPriceTable() {
         </span>
       </div>
 
+      <p className="mb-3 text-xs text-muted-foreground">*Calcutta: per bharti (350-400 leaves). Others: per 100 leaves. Yesterday and change use the same unit.</p>
       <div className="overflow-x-auto">
         <table className="w-full text-sm" role="table">
           <thead>
             <tr className="border-b border-border">
               <th className="pb-3 text-left font-medium text-muted-foreground" scope="col">Variety</th>
-              <th className="pb-3 text-right font-medium text-muted-foreground" scope="col">Today (per 100)</th>
+              <th className="pb-3 text-right font-medium text-muted-foreground" scope="col">Today*</th>
               <th className="hidden pb-3 text-right font-medium text-muted-foreground sm:table-cell" scope="col">Yesterday</th>
               <th className="pb-3 text-right font-medium text-muted-foreground" scope="col">Change</th>
             </tr>
@@ -77,7 +80,7 @@ export function DailyPriceTable() {
                   key={row.variety}
                   className="border-b border-border/50 last:border-0 transition-colors hover:bg-accent/50"
                 >
-                  <td className="py-3 font-medium text-card-foreground">{row.variety}</td>
+                  <td className="py-3 font-medium text-card-foreground">{row.variety}<span className="block text-[11px] font-normal text-muted-foreground">{isCalcutta({ name: row.variety }) ? "per bharti (350-400 leaves)" : "per 100 leaves"}</span></td>
                   <td className="py-3 text-right font-semibold text-card-foreground">
                     {"\u20B9"}{row.today_price.toLocaleString("en-IN")}
                   </td>

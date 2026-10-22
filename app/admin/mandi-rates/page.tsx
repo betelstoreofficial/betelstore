@@ -1,5 +1,7 @@
 "use client"
 
+import { quantityRules } from "@/lib/product-units"
+
 import { useEffect, useState, useCallback } from "react"
 import { Save, TrendingUp, TrendingDown, Minus } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -136,7 +138,7 @@ export default function AdminMandiRatesPage() {
                 const isChanged = rate.new_today_price !== rate.today_price
                 return (
                   <TableRow key={rate.id} className={cn("transition-colors hover:bg-accent/50", isChanged && "bg-yellow-50/50")}>
-                    <TableCell className="font-medium">{rate.variety}</TableCell>
+                    <TableCell className="font-medium">{rate.variety}<span className="block text-xs text-muted-foreground">{quantityRules({name: rate.variety}).rate}</span></TableCell>
                     <TableCell className="text-right text-muted-foreground tabular-nums">
                       {"\u20B9"}{rate.yesterday_price.toLocaleString("en-IN")}
                     </TableCell>
