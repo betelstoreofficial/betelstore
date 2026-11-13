@@ -140,13 +140,20 @@ export default function LandingPage() {
       <section className="relative overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/25 via-emerald-100/40 to-background dark:from-primary/15 dark:via-emerald-950/30 dark:to-background">
         {/* Decorative betel leaf */}
         <svg className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] opacity-30" viewBox="0 0 600 600" aria-hidden="true">
-          <g transform="rotate(-28 300 300)">
-            <path d="M300 60C225 120 170 230 180 330C188 420 240 475 300 505C365 470 425 380 425 290C425 200 370 110 300 60Z" fill="var(--primary)" fillOpacity="0.1" />
-            <path d="M300 505C299 520 297 532 293 545" fill="none" stroke="var(--primary)" strokeOpacity="0.35" strokeWidth="6" strokeLinecap="round" />
-            <path d="M300 78C290 180 312 320 298 490" fill="none" stroke="var(--primary)" strokeOpacity="0.4" strokeWidth="5" strokeLinecap="round" />
-            <path d="M297 170C262 185 238 208 226 234" fill="none" stroke="var(--primary)" strokeOpacity="0.3" strokeWidth="3.5" strokeLinecap="round" />
-            <path d="M301 260C336 272 360 296 372 322" fill="none" stroke="var(--primary)" strokeOpacity="0.3" strokeWidth="3.5" strokeLinecap="round" />
-            <path d="M298 350C266 364 244 386 234 410" fill="none" stroke="var(--primary)" strokeOpacity="0.3" strokeWidth="3.5" strokeLinecap="round" />
+          <g transform="rotate(180 300 300)">
+            <g transform="translate(300 300) skewX(-12) translate(-300 -300)">
+              <path d="M300 55C268 88 232 118 200 158C156 212 124 282 128 348C132 414 178 468 240 490C268 500 290 498 300 478C310 498 332 500 360 490C422 468 468 414 472 348C476 282 444 212 400 158C368 118 332 88 300 55Z" fill="var(--primary)" fillOpacity="0.08" stroke="var(--primary)" strokeOpacity="0.4" strokeWidth="10" strokeLinejoin="round" />
+              <path d="M300 482C301 512 303 540 306 564" fill="none" stroke="var(--primary)" strokeOpacity="0.4" strokeWidth="9" strokeLinecap="round" />
+              <path d="M300 470C296 380 304 250 298 96" fill="none" stroke="var(--primary)" strokeOpacity="0.45" strokeWidth="7" strokeLinecap="round" />
+              <path d="M298 170C272 150 254 132 243 112" fill="none" stroke="var(--primary)" strokeOpacity="0.35" strokeWidth="4.5" strokeLinecap="round" />
+              <path d="M302 170C328 150 346 132 357 112" fill="none" stroke="var(--primary)" strokeOpacity="0.35" strokeWidth="4.5" strokeLinecap="round" />
+              <path d="M299 260C262 232 224 206 196 182" fill="none" stroke="var(--primary)" strokeOpacity="0.35" strokeWidth="4.5" strokeLinecap="round" />
+              <path d="M301 260C338 232 376 206 404 182" fill="none" stroke="var(--primary)" strokeOpacity="0.35" strokeWidth="4.5" strokeLinecap="round" />
+              <path d="M300 350C254 318 202 290 162 262" fill="none" stroke="var(--primary)" strokeOpacity="0.35" strokeWidth="4.5" strokeLinecap="round" />
+              <path d="M300 350C346 318 398 290 438 262" fill="none" stroke="var(--primary)" strokeOpacity="0.35" strokeWidth="4.5" strokeLinecap="round" />
+              <path d="M300 430C244 402 188 376 144 352" fill="none" stroke="var(--primary)" strokeOpacity="0.35" strokeWidth="4.5" strokeLinecap="round" />
+              <path d="M300 430C356 402 412 376 456 352" fill="none" stroke="var(--primary)" strokeOpacity="0.35" strokeWidth="4.5" strokeLinecap="round" />
+            </g>
           </g>
         </svg>
         <div className="relative mx-auto max-w-6xl px-4 py-16 md:py-24 lg:py-32">
