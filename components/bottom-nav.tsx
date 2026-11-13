@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Store, ShoppingCart, ClipboardList, User, Shield, Phone, MessageCircle } from "lucide-react"
+import { Store, Globe, ShoppingCart, ClipboardList, User, Shield, Phone, MessageCircle } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
 import { useAuth } from "@/lib/auth-context"
 import { isAdminClient } from "@/lib/admin"
@@ -11,6 +11,7 @@ import { getTelLink, getWhatsAppLink } from "@/lib/site-settings"
 
 const tabs = [
   { href: "/shop", label: "Shop", icon: Store },
+  { href: "/export", label: "Export", icon: Globe },
   { href: "/cart", label: "Cart", icon: ShoppingCart },
   { href: "/orders", label: "Orders", icon: ClipboardList },
   { href: "/account", label: "Account", icon: User },
