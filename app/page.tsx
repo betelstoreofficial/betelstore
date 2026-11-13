@@ -32,7 +32,7 @@ import { track } from "@vercel/analytics"
 
 const trustItems = [
   { icon: Users, label: "500+ Businesses" },
-  { icon: Truck, label: "Same Day / Next Day Delivery" },
+  { icon: Truck, label: "Delivery Across India" },
   { icon: Leaf, label: "Farm Fresh" },
   { icon: ShieldCheck, label: "Quality Assured" },
 ]
@@ -41,7 +41,7 @@ const stats = [
   { value: "6+", label: "Varieties", icon: Leaf },
   { value: "20+", label: "Cities Served", icon: MapPin },
   { value: "500+", label: "Orders Fulfilled", icon: Package },
-  { value: "Same Day", label: "Dispatch", icon: Zap },
+  { value: "Daily", label: "Mandi Rates", icon: Zap },
 ]
 
 const usps = [
@@ -93,7 +93,7 @@ const steps = [
   {
     num: "3",
     title: "Fast Delivery",
-    desc: "Ahmedabad and Gandhinagar: same day before 7 PM (Mon, Wed, Fri), next day otherwise. Rest of India: dispatched in 24 hours.",
+    desc: "Delivery timing is confirmed for each order when you place it.",
     icon: Truck,
   },
 ]
@@ -457,7 +457,7 @@ export default function LandingPage() {
               </div>
               <p className="text-sm leading-relaxed text-muted-foreground">
                 India&apos;s trusted B2B marketplace for premium betel leaves.
-                Farm-fresh sourcing, transparent pricing, same day &amp; next day delivery.
+                Real-time mandi rates, transparent pricing, delivery timing confirmed for each order.
               </p>
             </div>
 

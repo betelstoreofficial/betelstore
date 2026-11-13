@@ -62,7 +62,7 @@ const faqs = [
   {
     question: "What is the delivery timeline?",
     answer:
-      "Ahmedabad & Gandhinagar: same-day delivery by Porter or Rapido on Mon, Wed & Fri for orders placed before 7 PM (subject to availability); next day otherwise. Rest of India: orders are dispatched within 24 hours by road or rail. Porter/Rapido delivery fees are charged at their actual rates.",
+      "Delivery timing and any delivery charges are confirmed for each order when you place it. We deliver across India.",
   },
   {
     question: "Can I cancel or modify an order?",

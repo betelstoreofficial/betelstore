@@ -26,7 +26,7 @@ const NEXT_DELIVERY_DAY: Record<number, number> = {
 }
 
 const FEE_NOTE =
-  "Same-day subject to availability. Ahmedabad & Gandhinagar: delivery fee as per Porter/Rapido charges. Rest of India: dispatched within 24 hours by road or rail."
+  "Delivery day and charges are confirmed when you place your order."
 
 function nowAsIST(): Date {
   const now = new Date()
@@ -43,7 +43,7 @@ export function getDeliveryInfo(date?: Date): DeliveryInfo {
   if (SAME_DAY_DAYS.has(dayOfWeek) && beforeCutoff) {
     return {
       type: "same-day",
-      label: "Same day delivery (order before 7 PM)",
+      label: "Delivery timing confirmed for each order",
       deliveryDay: DAY_NAMES[dayOfWeek],
       feeNote: FEE_NOTE,
     }
@@ -52,11 +52,11 @@ export function getDeliveryInfo(date?: Date): DeliveryInfo {
   const nextDay = NEXT_DELIVERY_DAY[dayOfWeek]
   return {
     type: "next-day",
-    label: `Next day delivery (${SHORT_DAYS[nextDay]})`,
+    label: "Delivery timing confirmed for each order",
     deliveryDay: DAY_NAMES[nextDay],
     feeNote: FEE_NOTE,
   }
 }
 
 export const DELIVERY_POLICY =
-  "Ahmedabad and Gandhinagar: same-day delivery by Porter or Rapido on Mon, Wed, Fri for orders placed before 7 PM (subject to availability); next day otherwise. Rest of India: dispatched within 24 hours by road or rail."
+  "Delivery timing and charges are confirmed for each order."

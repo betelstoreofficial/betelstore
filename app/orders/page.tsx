@@ -145,7 +145,7 @@ function OrderDetailContent({
         <div className="flex flex-col gap-1 text-muted-foreground">
           <div className="flex justify-between">
             <span>Delivery</span>
-            <span className="text-xs font-medium">As per Porter/Rapido charges</span>
+            <span className="text-xs font-medium">Confirmed for each order</span>
           </div>
         </div>
         <Separator />
