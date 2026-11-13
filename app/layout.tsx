@@ -5,7 +5,6 @@ import { AuthProvider } from "@/lib/auth-context"
 import { NavWrapper } from "@/components/nav-wrapper"
 import { MainWrapper } from "@/components/main-wrapper"
 import { Toaster } from "@/components/ui/sonner"
-import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
@@ -91,7 +90,6 @@ export default function RootLayout({
             <NavWrapper />
             <MainWrapper>{children}</MainWrapper>
             <Toaster />
-            <Analytics />
             <script
               type="application/ld+json"
               dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
