@@ -1,12 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Zap, Truck, ShieldCheck, Phone, MessageCircle } from "lucide-react"
+import Image from "next/image"
+import { Zap, Truck, ShieldCheck, ArrowRight } from "lucide-react"
 import { DailyPriceTable } from "@/components/daily-price-table"
 import { ProductCard } from "@/components/product-card"
 import { getProducts, type Product } from "@/lib/db"
-import { useSiteSettings } from "@/hooks/use-site-settings"
-import { getTelLink, getWhatsAppLink } from "@/lib/site-settings"
+import { proxyImageUrl } from "@/lib/utils"
 
 const features = [
   { icon: Zap, label: "Instant Quotes" },
@@ -14,10 +14,12 @@ const features = [
   { icon: ShieldCheck, label: "Quality Assured" },
 ]
 
+const HERO_IMAGE_URL =
+  "https://ohlovnugqjktbayxgmku.supabase.co/storage/v1/object/public/product-images/1776274945903-1iayz.jpeg"
+
 export default function ShopPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
-  const settings = useSiteSettings()
 
   useEffect(() => {
     async function loadProducts() {
@@ -33,46 +35,42 @@ export default function ShopPage() {
       {/* Hero + Mandi Rates Side by Side */}
       <div className="mb-8 grid grid-cols-1 gap-6 md:mb-12 lg:grid-cols-2 lg:items-start">
         {/* Hero Section */}
-        <section className="flex flex-col justify-center gap-4">
-          <div className="flex flex-col gap-2">
-            <h1 className="font-[family-name:var(--font-heading)] text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl text-balance">
-              Premium Betel Leaves,
-              <br />
-              <span className="text-primary">Wholesale Prices.</span>
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#082f1c] via-primary to-emerald-600 p-6 text-primary-foreground shadow-xl shadow-primary/25 md:p-8">
+          <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
+          <div className="relative flex items-start justify-between gap-4">
+            <h1 className="font-[family-name:var(--font-heading)] text-3xl font-bold tracking-tight text-balance md:text-4xl">
+              Premium Betel Leaves,{" "}
+              <span className="text-emerald-200">Wholesale Prices.</span>
             </h1>
-            <p className="max-w-lg text-base leading-relaxed text-muted-foreground md:text-lg">
-              Source the finest betel leaves directly from growers. Real-time mandi
-              rates, bulk discounts, and fast delivery across India.
-            </p>
+            <Image
+              src={proxyImageUrl(HERO_IMAGE_URL)!}
+              alt="Banarasi betel leaves"
+              width={96}
+              height={96}
+              className="h-20 w-20 shrink-0 rounded-full border-[3px] border-white/35 object-cover shadow-lg md:h-24 md:w-24"
+            />
           </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <a
-              href={getTelLink(settings.phone)}
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-emerald-600 px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:shadow-xl hover:shadow-primary/40 hover:brightness-110"
-            >
-              <Phone className="h-4 w-4" />
-              Call {settings.phone}
-            </a>
-            <a
-              href={getWhatsAppLink(settings.whatsapp, "Hi, I'd like a bulk quote for betel leaves")}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-2.5 text-sm font-semibold text-card-foreground transition-colors hover:bg-accent"
-            >
-              <MessageCircle className="h-4 w-4" />
-              WhatsApp Us
-            </a>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-4">
+          <p className="relative mt-3 max-w-lg text-sm leading-relaxed text-primary-foreground/85 md:text-base">
+            Source the finest betel leaves directly from growers. Real-time mandi
+            rates, bulk discounts, and fast delivery across India.
+          </p>
+          <a
+            href="#products"
+            className="relative mt-5 inline-flex w-fit items-center gap-2 rounded-xl border border-white/25 bg-white/15 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/25"
+          >
+            Browse Products
+            <ArrowRight className="h-4 w-4" />
+          </a>
+          <div className="relative mt-5 flex items-stretch gap-2">
             {features.map((f) => (
               <div
                 key={f.label}
-                className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 transition-colors hover:border-primary/30"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2 py-2"
               >
-                <f.icon className="h-4 w-4 text-primary" />
-                <span className="text-xs font-medium text-card-foreground">{f.label}</span>
+                <f.icon className="h-3.5 w-3.5 shrink-0 text-emerald-200" />
+                <span className="text-[11px] font-medium leading-tight text-white/95">
+                  {f.label}
+                </span>
               </div>
             ))}
           </div>
@@ -83,7 +81,7 @@ export default function ShopPage() {
       </div>
 
       {/* Products Grid */}
-      <section>
+      <section id="products" className="scroll-mt-20">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="font-[family-name:var(--font-heading)] text-xl font-bold text-foreground md:text-2xl">
             Shop Betel Leaves
