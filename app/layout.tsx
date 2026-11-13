@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   title: "Betel Wholesale - Premium Betel Leaf B2B Marketplace | Paan Leaves Wholesale India",
   description:
-    "India's trusted B2B wholesale marketplace for premium betel leaves (paan patta). Daily mandi rates, farm-fresh sourcing, bulk discounts, graded quality, and same-day dispatch across 20+ cities.",
+    "India's trusted B2B wholesale marketplace for premium betel leaves (paan patta). Real-time mandi rates, bulk discounts, and fast delivery across India.",
   keywords: [
     "betel leaves wholesale",
     "paan patta wholesale",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Betel Wholesale - Premium Betel Leaf B2B Marketplace",
     description:
-      "Source premium betel leaves at wholesale prices. Real-time mandi rates, bulk discounts, and same-day dispatch across India.",
+      "Source premium betel leaves at wholesale prices. Real-time mandi rates, bulk discounts, and fast delivery across India.",
     type: "website",
     locale: "en_IN",
     siteName: "Betel Wholesale",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Betel Wholesale - Premium Betel Leaf B2B Marketplace",
     description:
-      "Source premium betel leaves at wholesale prices. Real-time mandi rates, bulk discounts, and same-day dispatch across India.",
+      "Source premium betel leaves at wholesale prices. Real-time mandi rates, bulk discounts, and fast delivery across India.",
   },
   icons: {
     icon: [

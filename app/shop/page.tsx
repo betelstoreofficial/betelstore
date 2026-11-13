@@ -51,8 +51,8 @@ export default function ShopPage() {
             />
           </div>
           <p className="relative mt-3 max-w-lg text-sm leading-relaxed text-primary-foreground/85 md:text-base">
-            Source the finest betel leaves directly from growers. Real-time mandi
-            rates, bulk discounts, and fast delivery across India.
+            Real-time mandi rates, bulk discounts, and fast delivery across
+            India.
           </p>
           <a
             href="#products"

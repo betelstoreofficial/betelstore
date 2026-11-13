@@ -47,13 +47,13 @@ const stats = [
 const usps = [
   {
     icon: Leaf,
-    title: "Farm-Fresh Sourcing",
-    desc: "Direct procurement from farms across India ensures freshness and traceability.",
+    title: "Simple Ordering",
+    desc: "Pick your variety, see today's rate, and order online.",
   },
   {
     icon: BadgePercent,
     title: "Competitive Pricing",
-    desc: "Real-time mandi rates and transparent pricing with no hidden middleman costs.",
+    desc: "Real-time mandi rates and clear per-unit pricing on every variety.",
   },
   {
     icon: ShieldCheck,
@@ -160,8 +160,8 @@ export default function LandingPage() {
 
             {/* Subtitle */}
             <p className="mb-8 max-w-xl animate-in fade-in slide-in-from-top-4 text-base leading-relaxed text-muted-foreground duration-500 delay-200 md:text-lg">
-              Real-time mandi rates, farm-fresh sourcing, bulk discounts, and
-              same-day dispatch - everything your business needs in one platform.
+              Real-time mandi rates, bulk discounts, and fast delivery across
+              India - everything your business needs in one platform.
             </p>
 
             {/* CTAs */}
@@ -232,8 +232,7 @@ export default function LandingPage() {
             Our Premium Betel Leaf Varieties
           </h2>
           <p className="mx-auto max-w-lg text-sm text-muted-foreground md:text-base">
-            Hand-picked, graded, and packed for freshness. Sourced from the best
-            farms across India.
+            Seven varieties at daily mandi rates, with bulk discounts built in.
           </p>
         </div>
 
