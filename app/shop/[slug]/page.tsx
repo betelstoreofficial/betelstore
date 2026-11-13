@@ -6,10 +6,8 @@ import { createClient } from "@/lib/supabase/server"
 import type { Product } from "@/lib/db"
 import { productSlug } from "@/lib/product-slug"
 import {
-  isCalcutta,
   quantityRules,
   packagingDescription,
-  bulkMinimum,
 } from "@/lib/product-units"
 import { ProductCard } from "@/components/product-card"
 
@@ -54,7 +52,6 @@ export default async function VarietyPage({
   if (!product) notFound()
 
   const rules = quantityRules(product)
-  const calcutta = isCalcutta(product)
   const pageUrl = `https://thebetelstore.com/shop/${slug}`
 
   const jsonLd = {
@@ -92,37 +89,9 @@ export default async function VarietyPage({
         Back to Shop
       </Link>
 
-      <div className="grid gap-10 md:grid-cols-2">
-        <div>
-          <h1 className="font-[family-name:var(--font-heading)] text-3xl font-bold text-foreground md:text-4xl">
-            {product.name}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {product.origin} &middot; {product.grade}
-          </p>
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-            {product.description}
-            <span className="mt-1 block">{packagingDescription(product)}</span>
-          </p>
-          <div className="mt-6 flex flex-wrap items-baseline gap-2">
-            <span className="font-[family-name:var(--font-heading)] text-3xl font-bold text-foreground">
-              {"\u20B9"}
-              {product.price_per_100.toLocaleString("en-IN")}
-            </span>
-            <span className="text-sm text-muted-foreground">{rules.rate}</span>
-          </div>
-          {product.bulk_price_per_1000 ? (
-            <p className="mt-2 text-sm text-muted-foreground">
-              Bulk price: {"\u20B9"}
-              {product.bulk_price_per_1000.toLocaleString("en-IN")} per{" "}
-              {calcutta ? "bharti" : "1000 leaves"}, minimum{" "}
-              {bulkMinimum(product)} {rules.unit}.
-            </p>
-          ) : null}
-        </div>
-        <div className="max-w-md">
-          <ProductCard product={product} index={0} />
-        </div>
+      <h1 className="sr-only">{product.name}</h1>
+      <div className="max-w-md">
+        <ProductCard product={product} index={0} />
       </div>
     </main>
   )

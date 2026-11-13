@@ -3,7 +3,6 @@
 import { useState, useCallback } from "react"
 import { Plus, Minus, ShoppingCart, Leaf, Check, X, Truck } from "lucide-react"
 import Image from "next/image"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -18,7 +17,6 @@ import { cn, proxyImageUrl } from "@/lib/utils"
 import { getDeliveryInfo } from "@/lib/delivery"
 
 import { isCalcutta, quantityRules, packagingDescription, linePricing, bulkMinimum } from "@/lib/product-units"
-import { productSlug } from "@/lib/product-slug"
 
 interface ProductCardProps {
   product: Product
@@ -125,12 +123,6 @@ export function ProductCard({ product, index }: ProductCardProps) {
           <p className="mt-0.5 text-xs text-muted-foreground">
             {product.origin} &middot; {product.grade}
           </p>
-          <Link
-            href={`/shop/${productSlug(product.name)}`}
-            className="mt-1 inline-block text-xs font-medium text-primary hover:underline"
-          >
-            View details
-          </Link>
         </div>
 
         <p className="text-xs leading-relaxed text-muted-foreground">
