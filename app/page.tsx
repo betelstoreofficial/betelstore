@@ -140,7 +140,14 @@ export default function LandingPage() {
       <section className="relative overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/25 via-emerald-100/40 to-background dark:from-primary/15 dark:via-emerald-950/30 dark:to-background">
         {/* Decorative betel leaf */}
         <svg className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] opacity-30" viewBox="0 0 600 600" aria-hidden="true">
-          <path d="M300 115C220 20 65 65 65 215C65 355 220 455 300 555C380 455 535 355 535 215C535 65 380 20 300 115Z" fill="var(--primary)" fillOpacity="0.1" />
+          <g transform="rotate(-28 300 300)">
+            <path d="M300 60C225 120 170 230 180 330C188 420 240 475 300 505C365 470 425 380 425 290C425 200 370 110 300 60Z" fill="var(--primary)" fillOpacity="0.1" />
+            <path d="M300 505C299 520 297 532 293 545" fill="none" stroke="var(--primary)" strokeOpacity="0.35" strokeWidth="6" strokeLinecap="round" />
+            <path d="M300 78C290 180 312 320 298 490" fill="none" stroke="var(--primary)" strokeOpacity="0.4" strokeWidth="5" strokeLinecap="round" />
+            <path d="M297 170C262 185 238 208 226 234" fill="none" stroke="var(--primary)" strokeOpacity="0.3" strokeWidth="3.5" strokeLinecap="round" />
+            <path d="M301 260C336 272 360 296 372 322" fill="none" stroke="var(--primary)" strokeOpacity="0.3" strokeWidth="3.5" strokeLinecap="round" />
+            <path d="M298 350C266 364 244 386 234 410" fill="none" stroke="var(--primary)" strokeOpacity="0.3" strokeWidth="3.5" strokeLinecap="round" />
+          </g>
         </svg>
         <div className="relative mx-auto max-w-6xl px-4 py-16 md:py-24 lg:py-32">
           <div className="flex flex-col items-center text-center">
