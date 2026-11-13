@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
+import type { MouseEvent } from "react"
 import { usePathname } from "next/navigation"
 import { Leaf, ShoppingCart, Package, User, LogIn, Shield, Phone, MessageCircle, Globe } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
@@ -18,6 +19,15 @@ const navLinks = [
   { href: "/orders", label: "Orders", icon: Package },
   { href: "/account", label: "Account", icon: User },
 ]
+
+// Tapping the tab for the page you are already on scrolls back to the top.
+function scrollTopIfActive(active: boolean) {
+  return (e: MouseEvent<HTMLAnchorElement>) => {
+    if (!active) return
+    e.preventDefault()
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+}
 
 export function TopNav() {
   const pathname = usePathname()
@@ -94,6 +104,7 @@ export function TopNav() {
               <Link
                 key={link.href}
                 href={link.href}
+                onClick={scrollTopIfActive(isActive)}
                 className={`relative flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                   isActive
                     ? "bg-primary/10 text-primary"
@@ -117,6 +128,7 @@ export function TopNav() {
           {user && isAdminClient(user.email) && (
             <Link
               href="/admin"
+              onClick={scrollTopIfActive(pathname.startsWith("/admin"))}
               className={`relative flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                 pathname.startsWith("/admin")
                   ? "bg-primary/10 text-primary"

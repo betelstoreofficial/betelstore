@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type MouseEvent } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Store, Globe, ShoppingCart, ClipboardList, User, Shield, Phone, MessageCircle, HeadphonesIcon } from "lucide-react"
@@ -19,6 +19,15 @@ function tabClass(active: boolean) {
 
 function sheetRowClass() {
   return "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+}
+
+// Tapping the tab for the page you are already on scrolls back to the top.
+function scrollTopIfActive(active: boolean) {
+  return (e: MouseEvent<HTMLAnchorElement>) => {
+    if (!active) return
+    e.preventDefault()
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
 }
 
 export function BottomNav() {
@@ -46,7 +55,7 @@ export function BottomNav() {
           {links.map((tab) => {
             const isActive = pathname.startsWith(tab.href)
             return (
-              <Link key={tab.href} href={tab.href} className={tabClass(isActive)}>
+              <Link key={tab.href} href={tab.href} onClick={scrollTopIfActive(isActive)} className={tabClass(isActive)}>
                 <tab.icon className="h-5 w-5" />
                 <span>{tab.label}</span>
                 {isActive && (
@@ -74,7 +83,7 @@ export function BottomNav() {
               <span className="absolute -bottom-0.5 h-1 w-1 rounded-full bg-primary" />
             )}
           </button>
-          <Link href="/account" className={tabClass(pathname.startsWith("/account"))}>
+          <Link href="/account" onClick={scrollTopIfActive(pathname.startsWith("/account"))} className={tabClass(pathname.startsWith("/account"))}>
             <User className="h-5 w-5" />
             <span>Account</span>
             {pathname.startsWith("/account") && (
@@ -82,7 +91,7 @@ export function BottomNav() {
             )}
           </Link>
           {showAdmin && (
-            <Link href="/admin" className={tabClass(pathname.startsWith("/admin"))}>
+            <Link href="/admin" onClick={scrollTopIfActive(pathname.startsWith("/admin"))} className={tabClass(pathname.startsWith("/admin"))}>
               <Shield className="h-5 w-5" />
               <span>Admin</span>
               {pathname.startsWith("/admin") && (
