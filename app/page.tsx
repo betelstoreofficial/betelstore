@@ -161,7 +161,7 @@ export default function LandingPage() {
             {/* Subtitle */}
             <p className="mb-8 max-w-xl animate-in fade-in slide-in-from-top-4 text-base leading-relaxed text-muted-foreground duration-500 delay-200 md:text-lg">
               Real-time mandi rates, bulk discounts, and fast delivery across
-              India - everything your business needs in one platform.
+              India. Export enquiries welcome.
             </p>
 
             {/* CTAs */}
