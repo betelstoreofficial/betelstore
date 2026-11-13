@@ -58,7 +58,7 @@ export function BottomNav() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`relative flex min-w-[48px] flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium ${
+              className={`relative flex min-w-[44px] flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium ${
                 isActive ? "text-primary" : "text-muted-foreground"
               }`}
             >
@@ -83,7 +83,7 @@ export function BottomNav() {
             href={action.href}
             aria-label={action.ariaLabel}
             {...(action.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-            className="relative flex min-w-[48px] flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium text-muted-foreground"
+            className="relative flex min-w-[44px] flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium text-muted-foreground"
           >
             <action.icon className="h-5 w-5" />
             <span>{action.label}</span>
