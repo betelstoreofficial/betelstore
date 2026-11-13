@@ -138,9 +138,9 @@ export default function LandingPage() {
     <div className="flex flex-col">
       {/* ─── SECTION 1: HERO ─── */}
       <section className="relative overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/25 via-emerald-100/40 to-background dark:from-primary/15 dark:via-emerald-950/30 dark:to-background">
-        {/* Decorative blob */}
+        {/* Decorative betel leaf */}
         <svg className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] opacity-30" viewBox="0 0 600 600" aria-hidden="true">
-          <path d="M300 50C420 50 550 150 550 300C550 450 420 550 300 550C180 550 50 450 50 300C50 150 180 50 300 50Z" fill="var(--primary)" fillOpacity="0.1" />
+          <path d="M300 115C220 20 65 65 65 215C65 355 220 455 300 555C380 455 535 355 535 215C535 65 380 20 300 115Z" fill="var(--primary)" fillOpacity="0.1" />
         </svg>
         <div className="relative mx-auto max-w-6xl px-4 py-16 md:py-24 lg:py-32">
           <div className="flex flex-col items-center text-center">
