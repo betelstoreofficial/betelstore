@@ -46,22 +46,18 @@ export function TopNav() {
         </span>
       </Link>
       <div className="flex items-center gap-2">
-        <a
-          href={getTelLink(settings.phone)}
-          aria-label={`Call us at ${settings.phone}`}
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+        <Link
+          href="/export"
+          onClick={scrollTopIfActive(pathname.startsWith("/export"))}
+          className={`flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition-colors ${
+            pathname.startsWith("/export")
+              ? "border-primary/30 bg-primary/10 text-primary"
+              : "border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+          }`}
         >
-          <Phone className="h-4 w-4" />
-        </a>
-        <a
-          href={getWhatsAppLink(settings.whatsapp, "Hi, I'd like a bulk quote for betel leaves")}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Chat with us on WhatsApp (opens in new tab)"
-          className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
-        >
-          <MessageCircle className="h-4 w-4" />
-        </a>
+          <Globe className="h-4 w-4" />
+          Export
+        </Link>
         {loading ? (
           <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
         ) : user ? (

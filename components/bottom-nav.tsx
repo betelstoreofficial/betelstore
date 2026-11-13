@@ -3,7 +3,7 @@
 import { useState, type MouseEvent } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Store, Globe, ShoppingCart, ClipboardList, User, Shield, Phone, MessageCircle, HeadphonesIcon } from "lucide-react"
+import { Store, ShoppingCart, ClipboardList, User, Shield, Phone, MessageCircle, HeadphonesIcon } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
 import { useAuth } from "@/lib/auth-context"
 import { isAdminClient } from "@/lib/admin"
@@ -42,7 +42,6 @@ export function BottomNav() {
 
   const links = [
     { href: "/shop", label: "Shop", icon: Store },
-    { href: "/export", label: "Export", icon: Globe },
   ]
 
   return (
