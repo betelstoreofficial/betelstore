@@ -17,19 +17,19 @@ const steps = [
     icon: ClipboardList,
     num: 1,
     title: "Send your requirement",
-    desc: "Fill the form below. No account or sign in needed.",
+    desc: "Fill the form. No sign in needed.",
   },
   {
     icon: Package,
     num: 2,
     title: "Get your quote",
-    desc: "We confirm availability, packing and freight for your destination.",
+    desc: "We confirm availability, packing and freight.",
   },
   {
     icon: Plane,
     num: 3,
     title: "Confirm and we prepare",
-    desc: "Packing, freight and documents are agreed with you before anything is dispatched.",
+    desc: "Packing and documents agreed before dispatch.",
   },
 ]
 
@@ -84,53 +84,53 @@ export default function ExportPage() {
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="mx-auto max-w-6xl px-4 py-12 md:py-16">
-        <div className="mb-10 text-center">
-          <h2 className="mb-2 font-[family-name:var(--font-heading)] text-2xl font-bold text-foreground md:text-3xl">
-            How It Works
-          </h2>
-          <p className="mx-auto max-w-lg text-sm text-muted-foreground md:text-base">
-            Three simple steps to fresh betel leaves at your airport.
-          </p>
-        </div>
-        <div className="relative grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-4">
-          <div className="absolute left-[16.67%] right-[16.67%] top-8 hidden h-0.5 bg-gradient-to-r from-primary/30 via-primary/50 to-primary/30 md:block" />
-          {steps.map((step) => (
-            <div
-              key={step.num}
-              className="relative flex flex-col items-center text-center"
-            >
-              <div className="relative z-10 mb-4 flex h-16 w-16 items-center justify-center rounded-full border-2 border-primary bg-background shadow-md shadow-primary/20">
-                <step.icon className="h-6 w-6 text-primary" />
-              </div>
-              <span className="mb-1 text-xs font-bold uppercase tracking-wider text-primary">
-                Step {step.num}
-              </span>
-              <h3 className="mb-1 font-[family-name:var(--font-heading)] text-base font-semibold text-foreground">
-                {step.title}
-              </h3>
-              <p className="max-w-xs text-sm text-muted-foreground">
-                {step.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Enquiry form */}
+      {/* How It Works + Enquiry form */}
       <section id="enquiry-form" className="bg-secondary/30">
-        <div className="mx-auto max-w-3xl px-4 py-12 md:py-16">
-          <div className="mb-8 text-center">
-            <h2 className="mb-2 font-[family-name:var(--font-heading)] text-2xl font-bold text-foreground md:text-3xl">
-              Send Your Export Enquiry
-            </h2>
-            <p className="mx-auto max-w-lg text-sm text-muted-foreground md:text-base">
-              Share a few details and we will reply with availability and a
-              quote.
-            </p>
+        <div className="mx-auto max-w-6xl px-4 py-12 md:py-16">
+          <div className="grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
+            {/* How It Works */}
+            <div>
+              <h2 className="mb-2 font-[family-name:var(--font-heading)] text-2xl font-bold text-foreground md:text-3xl">
+                How It Works
+              </h2>
+              <p className="text-sm text-muted-foreground md:text-base">
+                Three simple steps to fresh betel leaves at your airport.
+              </p>
+              <div className="relative mt-10 space-y-10">
+                <div className="absolute bottom-6 left-6 top-6 w-0.5 bg-gradient-to-b from-primary/30 via-primary/50 to-primary/30" />
+                {steps.map((step) => (
+                  <div key={step.num} className="relative flex items-start gap-4">
+                    <div className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-background shadow-md shadow-primary/20">
+                      <step.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <span className="mb-0.5 block text-xs font-bold uppercase tracking-wider text-primary">
+                        Step {step.num}
+                      </span>
+                      <h3 className="mb-1 font-[family-name:var(--font-heading)] text-base font-semibold text-foreground">
+                        {step.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {step.desc}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Enquiry form */}
+            <div>
+              <h2 className="mb-2 font-[family-name:var(--font-heading)] text-2xl font-bold text-foreground md:text-3xl">
+                Send Your Export Enquiry
+              </h2>
+              <p className="mb-6 text-sm text-muted-foreground md:text-base">
+                Share a few details and we will reply with availability and a
+                quote.
+              </p>
+              <ExportEnquiryForm />
+            </div>
           </div>
-          <ExportEnquiryForm />
         </div>
       </section>
 
