@@ -28,6 +28,7 @@ import { useSiteSettings } from "@/hooks/use-site-settings"
 import { getWhatsAppLink } from "@/lib/site-settings"
 import { ProductCard } from "@/components/product-card"
 import { getProducts, type Product } from "@/lib/db"
+import { track } from "@vercel/analytics"
 
 const trustItems = [
   { icon: Users, label: "500+ Businesses" },
@@ -334,6 +335,38 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ─── SECTION: EXPORT ENQUIRIES ─── */}
+      <section className="mx-auto max-w-6xl px-4 py-12 md:py-16">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary via-emerald-600 to-teal-600 px-6 py-12 text-center md:px-12">
+          <h2 className="mb-4 font-[family-name:var(--font-heading)] text-2xl font-bold text-primary-foreground md:text-3xl">
+            Buying from Outside India?
+          </h2>
+          <p className="mx-auto mb-8 max-w-lg text-sm text-primary-foreground/80 md:text-base">
+            We take bulk export enquiries for all 7 varieties. Share your destination and quantity, and we will send a quote with packing and freight.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href="/export"
+              onClick={() => { try { track("export_enquiry_click") } catch { /* analytics unavailable */ } }}
+              className="inline-flex items-center gap-2 rounded-xl bg-background px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-background/90"
+            >
+              Send Export Enquiry
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+            <a
+              href={getWhatsAppLink(settings.whatsapp, "Hi, I want to enquire about exporting betel leaves from India")}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Contact us on WhatsApp (opens in new tab)"
+              onClick={() => { try { track("whatsapp_click") } catch { /* analytics unavailable */ } }}
+              className="inline-flex items-center gap-2 rounded-xl border border-primary-foreground/30 px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-foreground/10"
+            >
+              WhatsApp Us
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* ─── SECTION 6: TESTIMONIALS ─── */}
       <section className="bg-secondary/30">
         <div className="mx-auto max-w-6xl px-4 py-12 md:py-16">
@@ -436,6 +469,7 @@ export default function LandingPage() {
                 {[
                   { href: "/", label: "Home" },
                   { href: "/shop", label: "Shop All" },
+                  { href: "/export", label: "Export enquiries" },
                   { href: "/cart", label: "Cart" },
                   { href: "/orders", label: "My Orders" },
                   { href: "/account", label: "Account" },

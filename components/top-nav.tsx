@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Leaf, ShoppingCart, Package, User, LogIn, Shield, Phone, MessageCircle } from "lucide-react"
+import { Leaf, ShoppingCart, Package, User, LogIn, Shield, Phone, MessageCircle, Globe } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
 import { useAuth } from "@/lib/auth-context"
 import { isAdminClient } from "@/lib/admin"
@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 const navLinks = [
   { href: "/shop", label: "Shop", icon: Leaf },
+  { href: "/export", label: "Export", icon: Globe },
   { href: "/cart", label: "Cart", icon: ShoppingCart },
   { href: "/orders", label: "Orders", icon: Package },
   { href: "/account", label: "Account", icon: User },

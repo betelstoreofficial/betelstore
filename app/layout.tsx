@@ -5,6 +5,7 @@ import { AuthProvider } from "@/lib/auth-context"
 import { NavWrapper } from "@/components/nav-wrapper"
 import { MainWrapper } from "@/components/main-wrapper"
 import { Toaster } from "@/components/ui/sonner"
+import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
@@ -14,6 +15,8 @@ const spaceGrotesk = Space_Grotesk({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://thebetelstore.com"),
+  alternates: { canonical: "/" },
   title: "Betel Wholesale - Premium Betel Leaf B2B Marketplace | Paan Leaves Wholesale India",
   description:
     "India's trusted B2B wholesale marketplace for premium betel leaves (paan patta). Daily mandi rates, farm-fresh sourcing, bulk discounts, graded quality, and same-day dispatch across 20+ cities.",
@@ -60,6 +63,21 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 }
 
+const orgJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "The Betel Store",
+  url: "https://thebetelstore.com/",
+  email: "info@thebetelstore.com",
+  telephone: "+91 8401603903",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Kalupur, Ahmedabad",
+    addressRegion: "GJ",
+    addressCountry: "IN",
+  },
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -73,6 +91,11 @@ export default function RootLayout({
             <NavWrapper />
             <MainWrapper>{children}</MainWrapper>
             <Toaster />
+            <Analytics />
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+            />
           </CartProvider>
         </AuthProvider>
       </body>
